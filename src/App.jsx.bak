@@ -17,7 +17,7 @@ function App() {
       }
 
       {
-        // Footer å…ƒä»¶
+        // Footer ¤¸¥ó
         <Footer />
       }
     </div>
