@@ -1,7 +1,5 @@
 import React from 'react';
-import './styles/App.css';
-import reactLogo from '../assets/react.svg';
-import viteLogo from '../assets/vite.svg';
+import '../styles/App.css';
 
 export default function Footer() {
   return (
@@ -13,7 +11,7 @@ export default function Footer() {
       </nav>
       <p className="copyright">© {new Date().getFullYear()} Typing Flow</p>
       <p>
-        Made with React <img className="spin textImg" src={reactLogo} alt="React Logo" /> + Vite <img className="textImg" src={viteLogo} alt="Vite Logo" />
+        Made with <img className="textImg" src="/next.svg" alt="Next.js" /> + React <img className="spin textImg" src="/react.svg" alt="React Logo" />
       </p>
     </footer>
   );
