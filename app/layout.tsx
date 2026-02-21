@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { StrictMode } from 'react';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./styles/App.css";
-import './styles/index.css';
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import { AuthProvider } from "../lib/contexts/AuthContext";
@@ -31,14 +30,16 @@ export default function RootLayout({
     <StrictMode>
       <html lang="zh-TW">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning
         >
-          <div className="App">
-            <AuthProvider>
-              <Nav />
-              <div className="main-content">{children}</div>
-              <Footer />
-            </AuthProvider>
+          <div id="root">
+            <div className="App">
+              <AuthProvider>
+                <Nav />
+                <div className="main-content">{children}</div>
+                <Footer />
+              </AuthProvider>
+            </div>
           </div>
         </body>
       </html>

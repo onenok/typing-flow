@@ -1,18 +1,21 @@
 import React from 'react';
+import Link from "next/link";
 import '../styles/App.css';
 
 export default function Footer() {
   return (
     <footer className="site-footer">
       <nav className="footer-nav">
-        <a href="/privacy-policy">Privacy Policy</a>
+        <Link href="/privacy-policy">Privacy Policy</Link>
         <span className="sep"> | </span>
-        <a href="/terms-of-service">Terms of Service</a>
+        <Link href="/terms-of-service">Terms of Service</Link>
       </nav>
-      <p className="copyright">© {new Date().getFullYear()} Typing Flow</p>
-      <p>
-        Made with <img className="textImg" src="/next.svg" alt="Next.js" /> + React <img className="spin textImg" src="/react.svg" alt="React Logo" />
-      </p>
+        <p className="made-with">
+          Made with <img className="textImg" src="/next.svg" alt="Next.js" /> + React <img className="spin textImg" style={{ width: "1.35em", height: "1.35em" }} src="/react.svg" alt="React Logo" />
+        </p>
+        <p className="copyright">
+          © {new Date().getFullYear()} Typing Flow
+        </p>
     </footer>
   );
 }
