@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { StrictMode } from 'react';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./styles/App.css";
 import Nav from "./components/Nav";
+import Footer from "./components/Footer";
+import { AuthProvider } from "../lib/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,13 +27,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-TW">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Nav />
-        {children}
-      </body>
-    </html>
+    <StrictMode>
+      <html lang="zh-TW">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning
+        >
+          <div id="root">
+            <div className="App">
+              <AuthProvider>
+                <Nav />
+                <div className="main-content">{children}</div>
+                <Footer />
+              </AuthProvider>
+            </div>
+          </div>
+        </body>
+      </html>
+    </StrictMode>
   );
 }

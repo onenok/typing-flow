@@ -20,6 +20,7 @@ export default function Nav() {
 
   return (
     <nav className="site-nav">
+      <div className="logo">Typing Flow</div>
       <div className="nav-list">
         <Link href="/" className="nav-item">
           首頁
@@ -52,7 +53,7 @@ export default function Nav() {
             </button>
           </>
         ) : (
-          <div className="nav-rightest">
+          <div className="nav-list">
             <Link href="/auth/login" className="nav-item">
               登入
             </Link>
