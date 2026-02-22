@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { getTypingSession, getTypingDetails } from "../../../lib/db/typing-sessions";
 import Link from "next/link";
 
+export const runtime = 'edge';
+
 export default function ResultDetailPage() {
   const { user, loading } = useAuth();
   const params = useParams();
