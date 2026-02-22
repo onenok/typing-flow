@@ -1,0 +1,21 @@
+name: Check PR Source Branch
+
+on:
+  pull_request:
+    branches:
+      - main  # 只有目標是 main 的 PR 會觸發
+
+jobs:
+  enforce-dev-to-main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Source Branch
+        run: |
+          SOURCE_BRANCH=${{ github.head_ref }}
+          echo "PR Source Branch: $SOURCE_BRANCH"
+          if [ "$SOURCE_BRANCH" != "dev" ]; then
+            echo "❌ 錯誤：只有 'dev' 分支可以併入 'main'。"
+            echo "請先將你的變更併入 'dev' 分支，再由 'dev' 提交 PR 到 'main'。"
+            exit 1
+          fi
+          echo "✅ 驗證成功：來源分支是 dev。"
