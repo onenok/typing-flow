@@ -11,21 +11,23 @@ export default function ResultsPage() {
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
-
-    const fetchData = async () => {
-      setLoadingData(true);
-      const sessionsData = await getUserTypingSessions(user.id, 50);
-      setSessions(sessionsData);
+    if (user) {
+      const fetchData = async () => {
+        setLoadingData(true);
+        const sessionsData = await getUserTypingSessions(user.id, 50);
+        setSessions(sessionsData);
+        setLoadingData(false);
+      };
+      fetchData();
+    } else {
+      setSessions([]);
       setLoadingData(false);
-    };
-
-    fetchData();
-  }, [user]);
+    }
+  }, [user? user : null, loading]);
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600">載入中...</p>
         </div>
@@ -33,22 +35,9 @@ export default function ResultsPage() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">請先登入</p>
-          <Link href="/auth/login" className="text-blue-500 hover:underline mt-4 inline-block">
-            立即登入
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   if (sessions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100">
+      <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100">
         <main className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-center mb-8 text-gray-900">
             練習結果
@@ -79,7 +68,7 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100">
+    <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100">
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-900">
           練習結果
@@ -150,9 +139,8 @@ export default function ResultsPage() {
                       </td>
                       <td className="px-4 py-2">
                         <span
-                          className={`px-2 py-1 rounded text-white text-sm ${
-                            session.mode === "practice" ? "bg-blue-500" : "bg-green-500"
-                          }`}
+                          className={`px-2 py-1 rounded text-white text-sm ${session.mode === "practice" ? "bg-blue-500" : "bg-green-500"
+                            }`}
                         >
                           {session.mode === "practice" ? "練習" : "測驗"}
                         </span>

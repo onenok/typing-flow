@@ -8,15 +8,6 @@ export default function Nav() {
   const { user, loading, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  if (loading) {
-    return (
-      <nav className="site-nav">
-        <div className="nav-list">
-          <div className="nav-item">載入中...</div>
-        </div>
-      </nav>
-    );
-  }
 
   return (
     <nav className="site-nav">
@@ -37,10 +28,14 @@ export default function Nav() {
       </div>
 
       <div className="nav-rightest">
-        {user ? (
+        {loading ? (
+          <div className="nav-list">
+            <div className="nav-item">載入中...</div>
+          </div>
+        ) : user ? (
           <>
             <Link href="/profile" className="nav-item">
-              {user.user_metadata?.full_name || user.email}
+              {user?.user_metadata?.full_name || user?.email}
             </Link>
             <button
               onClick={async () => {

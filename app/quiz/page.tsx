@@ -56,7 +56,7 @@ export default function QuizPage() {
   }, [quizActive, timeLeft]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (loading || !user || isComplete || !quizActive) return;
+    if (loading || isComplete || !quizActive) return;
 
     if (!startTime) {
       setStartTime(Date.now());
@@ -84,7 +84,7 @@ export default function QuizPage() {
   };
 
   const completeSession = async () => {
-    if (!user || !startTime) return;
+    if (!startTime) return;
 
     const duration = 60 - timeLeft; // 實際使用的時間
     const totalChars = charIndex;
@@ -92,34 +92,40 @@ export default function QuizPage() {
     const wpm = (correctChars / 5) / (duration / 60);
     const accuracy = totalChars > 0 ? (correctChars / totalChars) * 100 : 0;
 
-    const sessionData = {
-      user_id: user.id,
-      mode: "quiz" as const,
-      text_type: "sentences",
-      text_content: text,
-      duration_seconds: duration,
-      total_chars: totalChars,
-      correct_chars: correctChars,
-      errors,
-      wpm,
-      accuracy,
-    };
+    if (user) {
+      const sessionData = {
+        user_id: user.id,
+        mode: "quiz" as const,
+        text_type: "sentences",
+        text_content: text,
+        duration_seconds: duration,
+        total_chars: totalChars,
+        correct_chars: correctChars,
+        errors,
+        wpm,
+        accuracy,
+      };
 
-    const newSession = await createTypingSession(sessionData);
-    if (newSession) {
-      setSession(newSession);
+      const newSession = await createTypingSession(sessionData);
+      if (newSession) {
+        setSession(newSession);
 
-      // 創建詳細記錄
-      const details = text.split("").slice(0, charIndex).map((char, index) => ({
-        session_id: newSession.id,
-        char_index: index,
-        expected_char: char,
-        typed_char: typedText[index] || "",
-        is_correct: char === (typedText[index] || ""),
-        time_ms: 0, // 簡化，實際應用中應記錄每個字符的時間
-      }));
+        // 創建詳細記錄
+        const details = text.split("").slice(0, charIndex).map((char, index) => ({
+          session_id: newSession.id,
+          char_index: index,
+          expected_char: char,
+          typed_char: typedText[index] || "",
+          is_correct: char === (typedText[index] || ""),
+          time_ms: 0, // 簡化，實際應用中應記錄每個字符的時間
+        }));
 
-      await createTypingDetails(details);
+        await createTypingDetails(details);
+        setIsComplete(true);
+        setQuizActive(false);
+      }
+    }
+    else {
       setIsComplete(true);
       setQuizActive(false);
     }
@@ -138,9 +144,9 @@ export default function QuizPage() {
     setSession(null);
   };
 
-  if (loading || !user) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600">載入中...</p>
         </div>
@@ -149,7 +155,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100">
+    <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100">
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-900">
           測驗模式
@@ -188,9 +194,8 @@ export default function QuizPage() {
                 {text.split("").map((char, index) => (
                   <span
                     key={index}
-                    className={`inline-block ${
-                      index < charIndex ? "text-green-500" : "text-gray-700"
-                    }`}
+                    className={`inline-block ${index < charIndex ? "text-green-500" : "text-gray-700"
+                      }`}
                   >
                     {char}
                   </span>
@@ -208,9 +213,8 @@ export default function QuizPage() {
                 {typedText.split("").map((char, index) => (
                   <span
                     key={index}
-                    className={`inline-block ${
-                      char === text[index] ? "text-green-500" : "text-red-500"
-                    }`}
+                    className={`inline-block ${char === text[index] ? "text-green-500" : "text-red-500"
+                      }`}
                   >
                     {char}
                   </span>
@@ -248,11 +252,11 @@ export default function QuizPage() {
               </div>
             </div>
           )}
-
+          {quizActive &&
           <div className="text-center">
             <button
               onClick={resetQuiz}
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition mr-4"
+              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
             >
               重新開始
             </button>
@@ -262,6 +266,7 @@ export default function QuizPage() {
               </Link>
             )}
           </div>
+          }
         </div>
       </main>
     </div>

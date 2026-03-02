@@ -11,7 +11,7 @@ export default function Footer() {
         <Link href="/terms-of-service">Terms of Service</Link>
       </nav>
         <p className="made-with">
-          Made with <img className="textImg" src="/next.svg" alt="Next.js" /> + React <img className="spin textImg" style={{ width: "1.35em", height: "1.35em" }} src="/react.svg" alt="React Logo" />
+          Made with <img className="textImg inline" src="/next.svg" alt="Next.js" /> + React <img className="spin textImg inline" style={{ width: "1.35em", height: "1.35em" }} src="/react.svg" alt="React Logo" />
         </p>
         <p className="copyright">
           © {new Date().getFullYear()} Typing Flow

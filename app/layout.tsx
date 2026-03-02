@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { StrictMode } from 'react';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./styles/App.css";
+import "./styles/global.css";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import { AuthProvider } from "../lib/contexts/AuthContext";

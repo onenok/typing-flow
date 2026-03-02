@@ -20,7 +20,6 @@
 #root {
   margin: 0;
   padding: 0;
-  text-align: center;
   width: 100%;
 }
 
@@ -40,11 +39,6 @@ body {
 
 a {
   font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
 }
 
 h1 {
@@ -63,9 +57,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -122,8 +118,15 @@ button:focus-visible {
   padding-inline: max(1rem, calc(50vw - 720px + 1rem));
   width: 100%;
   background-color: #282c34;
-  a {
+
+  .nav-item {
     width: max-content;
+    font-weight: 500;
+    color: #646cff;
+  }
+
+  .nav-item:hover {
+    color: #535bf2;
   }
 }
 
@@ -143,12 +146,6 @@ button:focus-visible {
   gap: 2rem;
 }
 
-.nav-item a {
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-}
-
 .nav-rightest {
   justify-self: right;
   display: flex;
@@ -157,15 +154,13 @@ button:focus-visible {
 }
 
 .main-content {
-  padding: 2rem;
-  margin: 0 auto;
-  max-width: 1280px;
+  width: 100%;
 }
 
 .site-footer {
   margin: 0;
   padding: 0;
-  background-color: #e0e5ea;
+  background-color: #fff;
   text-align: center;
 
   .footer-nav {
@@ -200,9 +195,11 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "../../lib/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createTypingSession, createTypingDetails } from "../../lib/db/typing-sessions";
 import Link from "next/link";
 
@@ -15,7 +15,7 @@ export default function PracticePage() {
   const [session, setSession] = useState<any>(null);
   const [isComplete, setIsComplete] = useState(false);
 
-  const sampleText = `在打字練習中，準確性和速度同樣重要。保持良好的坐姿，手指正確放在鍵盤上，並專注於屏幕上的文字。通過持續練習，你會看到顯著的進步。記住，每個專家都曾經是初學者。`;
+  const sampleText = `abcdefghijklmnopqrstuvwxyz 1234567890!@#$%^&*()_+-= The quick brown fox jumps over the lazy dog. This pangram contains every letter of the alphabet at least once.`;
 
   useEffect(() => {
     setText(sampleText);
@@ -26,15 +26,21 @@ export default function PracticePage() {
     setIsComplete(false);
   }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (loading || !user || isComplete) return;
 
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    console.log("Key pressed");
+    if (loading || isComplete) return;
+    console.log("loaded and not complete");
     if (!startTime) {
       setStartTime(Date.now());
     }
+    console.log("started");
 
     const expectedChar = text[charIndex];
     const typedChar = e.key;
+
+    console.log(`Key pressed: ${e.key} \nExpected char: ${expectedChar} \nCurrent index: ${charIndex} \nTyped text so far: ${typedText}`);
 
     if (typedChar === expectedChar) {
       setCharIndex(prev => prev + 1);
@@ -46,10 +52,17 @@ export default function PracticePage() {
     if (charIndex + 1 >= text.length) {
       completeSession();
     }
-  };
+  }, [text, charIndex, typedText, loading, isComplete]);
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      console.log("Cleaning up event listener");
+      document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [handleKeyDown]);
 
   const completeSession = async () => {
-    if (!user || !startTime) return;
+    if (!startTime) return;
 
     const duration = (Date.now() - startTime) / 1000;
     const totalChars = text.length;
@@ -57,50 +70,54 @@ export default function PracticePage() {
     const wpm = (correctChars / 5) / (duration / 60);
     const accuracy = (correctChars / totalChars) * 100;
 
-    const sessionData = {
-      user_id: user.id,
-      mode: "practice" as const,
-      text_type: "sentences",
-      text_content: text,
-      duration_seconds: duration,
-      total_chars: totalChars,
-      correct_chars: correctChars,
-      errors,
-      wpm,
-      accuracy,
-    };
+    if (user) {
+      const sessionData = {
+        user_id: user.id,
+        mode: "practice" as const,
+        text_type: "sentences",
+        text_content: text,
+        duration_seconds: duration,
+        total_chars: totalChars,
+        correct_chars: correctChars,
+        errors,
+        wpm,
+        accuracy,
+      };
+      const newSession = await createTypingSession(sessionData);
+      if (newSession) {
+        setSession(newSession);
 
-    const newSession = await createTypingSession(sessionData);
-    if (newSession) {
-      setSession(newSession);
+        // 創建詳細記錄
+        const details = text.split("").map((char, index) => ({
+          session_id: newSession.id,
+          char_index: index,
+          expected_char: char,
+          typed_char: typedText[index] || "",
+          is_correct: char === (typedText[index] || ""),
+          time_ms: 0, // 簡化，實際應用中應記錄每個字符的時間
+        }));
 
-      // 創建詳細記錄
-      const details = text.split("").map((char, index) => ({
-        session_id: newSession.id,
-        char_index: index,
-        expected_char: char,
-        typed_char: typedText[index] || "",
-        is_correct: char === (typedText[index] || ""),
-        time_ms: 0, // 簡化，實際應用中應記錄每個字符的時間
-      }));
-
-      await createTypingDetails(details);
+        await createTypingDetails(details);
+        setIsComplete(true);
+      }
+    }
+    else {
       setIsComplete(true);
     }
   };
 
-  if (loading || !user) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">載入中...</p>
+          <p className="text-gray-600">載入中...{'loading: ' + (loading ? 'true' : 'false')} {'user: ' + (user ? user.id : 'null')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100">
+    <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100">
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-900">
           練習模式
@@ -115,36 +132,12 @@ export default function PracticePage() {
               {text.split("").map((char, index) => (
                 <span
                   key={index}
-                  className={`inline-block ${
-                    index < charIndex ? "text-green-500" : "text-gray-700"
-                  }`}
+                  className={`inline-block ${index < charIndex ? "text-green-500" : "text-gray-700"
+                    }`}
                 >
                   {char}
                 </span>
               ))}
-            </div>
-          </div>
-
-          <div className="mb-8">
-            <p className="text-gray-600 mb-4">
-              已輸入：
-            </p>
-            <div className="bg-gray-100 p-4 rounded-lg text-lg">
-              {typedText.split("").map((char, index) => (
-                <span
-                  key={index}
-                  className={`inline-block ${
-                    char === text[index] ? "text-green-500" : "text-red-500"
-                  }`}
-                >
-                  {char}
-                </span>
-              ))}
-              {charIndex < text.length && (
-                <span className="text-gray-400">
-                  {text.slice(charIndex)}
-                </span>
-              )}
             </div>
           </div>
 
@@ -159,7 +152,7 @@ export default function PracticePage() {
               <p className="text-gray-600 text-sm">準確率 (%)</p>
               <p className="text-2xl font-bold text-green-600">
                 {startTime && charIndex > 0
-                  ? Math.round(((charIndex - errors) / charIndex) * 100)
+                  ? Math.round(((charIndex) / (charIndex + errors)) * 100)
                   : 0}
               </p>
             </div>

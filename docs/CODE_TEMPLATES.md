@@ -25,7 +25,7 @@ export default function YourPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <div className="text-center">
           <p>請先登入</p>
           <Link href="/auth/login" className="text-blue-500 hover:underline">
@@ -37,7 +37,7 @@ export default function YourPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100">
+    <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100">
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-900">
           頁面標題
@@ -57,7 +57,7 @@ export default function YourPage() {
 // app/your-page/page.tsx
 export default function YourPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100">
+    <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100">
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-900">
           頁面標題
@@ -163,7 +163,7 @@ export default function FormPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="h-full flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6">表單頁面</h1>
 
