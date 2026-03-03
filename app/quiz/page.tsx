@@ -2,7 +2,7 @@
 
 import { useAuth } from "../../lib/contexts/AuthContext";
 import { useState, useEffect, useCallback } from "react";
-import { createTypingSession, createTypingDetails } from "../../lib/db/typing-sessions";
+import { saveTypingSession, saveTypingDetails } from "@/app/typing/actions";
 import Link from "next/link";
 
 export default function QuizPage() {
@@ -106,7 +106,7 @@ export default function QuizPage() {
         accuracy,
       };
 
-      const newSession = await createTypingSession(sessionData);
+      const newSession = await saveTypingSession(sessionData);
       if (newSession) {
         setSession(newSession);
 
@@ -120,7 +120,7 @@ export default function QuizPage() {
           time_ms: 0, // 簡化，實際應用中應記錄每個字符的時間
         }));
 
-        await createTypingDetails(details);
+        await saveTypingDetails(details);
         setIsComplete(true);
         setQuizActive(false);
       }

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "../supabase";
+import { createClient } from "../supabase/client";  // 改成匯入函式
 
 interface AuthContextType {
   user: User | null;
@@ -10,18 +10,21 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<{ error: any | null }>;
   updateProfile: (fullName?: string, avatarUrl?: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // 使用 useMemo 確保 client 只建立一次
+  const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!supabase) return; // 防呆，雖然在 client 應該永遠有
     // 獲取初始會話
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -39,9 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
 
   const signIn = async (email: string, password: string) => {
+    if (!supabase) return { error: new Error("Supabase client 未初始化") };
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -50,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
+    if (!supabase) return { error: new Error("Supabase client 未初始化") };
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -63,10 +68,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    if (!supabase) return { error: new Error("Supabase client 未初始化, ???but how???") };
+    const { error } = await supabase.auth.signOut();
+    return { error };
   };
 
   const updateProfile = async (fullName?: string, avatarUrl?: string) => {
+    if (!supabase || !user?.id) return { error: new Error("無法更新") };
     const { error } = await supabase
       .from("users")
       .upsert({

@@ -6,13 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "build:cloudflare": "npx @opennextjs/cloudflare build",
-    "deploy:cloudflare": "npx @opennextjs/cloudflare deploy",
-    "upload:cloudflare": "npx @opennextjs/cloudflare upload"
+    "lint": "eslint"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.97.0",
+    "@supabase/ssr": "^0.9.0",
+    "@supabase/supabase-js": "^2.98.0",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"

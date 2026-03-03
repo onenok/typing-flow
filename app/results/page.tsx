@@ -2,7 +2,7 @@
 
 import { useAuth } from "../../lib/contexts/AuthContext";
 import { useState, useEffect } from "react";
-import { getUserTypingSessions } from "../../lib/db/typing-sessions";
+import { fetchUserSessions } from "@/app/typing/actions";
 import Link from "next/link";
 
 export default function ResultsPage() {
@@ -14,7 +14,7 @@ export default function ResultsPage() {
     if (user) {
       const fetchData = async () => {
         setLoadingData(true);
-        const sessionsData = await getUserTypingSessions(user.id, 50);
+        const sessionsData = await fetchUserSessions(user.id, 50);
         setSessions(sessionsData);
         setLoadingData(false);
       };

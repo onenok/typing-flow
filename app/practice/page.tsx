@@ -2,7 +2,7 @@
 
 import { useAuth } from "../../lib/contexts/AuthContext";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { createTypingSession, createTypingDetails } from "../../lib/db/typing-sessions";
+import { saveTypingSession, saveTypingDetails } from "@/app/typing/actions";
 import Link from "next/link";
 
 export default function PracticePage() {
@@ -151,7 +151,7 @@ export default function PracticePage() {
         wpm,
         accuracy,
       };
-      const newSession = await createTypingSession(sessionData);
+      const newSession = await saveTypingSession(sessionData);
       if (newSession) {
         setSession(newSession);
 
@@ -164,7 +164,7 @@ export default function PracticePage() {
           time_ms: 0,
         }));
 
-        await createTypingDetails(details);
+        await saveTypingDetails(details);
         setIsComplete(true);
         setShouldKeepFocus(false); // 完成後關閉自動 focus
       }

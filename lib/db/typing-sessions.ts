@@ -1,4 +1,4 @@
-import { supabase } from "../supabase";
+import { createServerSupabase } from "../supabase/server/server";
 
 export interface TypingSession {
   id: string;
@@ -52,6 +52,7 @@ export async function createTypingSession(session: {
   wpm: number;
   accuracy: number;
 }): Promise<TypingSession | null> {
+  const supabase = await createServerSupabase();
   const { data, error } = await supabase
     .from("typing_sessions")
     .insert(session)
@@ -72,6 +73,7 @@ export async function getUserTypingSessions(
   limit: number = 50,
   offset: number = 0
 ): Promise<TypingSession[]> {
+  const supabase = await createServerSupabase();
   const { data, error } = await supabase
     .from("typing_sessions")
     .select("*")
@@ -91,6 +93,7 @@ export async function getUserTypingSessions(
 export async function getTypingSession(
   sessionId: string
 ): Promise<TypingSession | null> {
+  const supabase = await createServerSupabase();
   const { data, error } = await supabase
     .from("typing_sessions")
     .select("*")
@@ -110,6 +113,7 @@ export async function deleteTypingSession(
   sessionId: string,
   userId: string
 ): Promise<boolean> {
+  const supabase = await createServerSupabase();
   const { error } = await supabase
     .from("typing_sessions")
     .delete()
@@ -136,6 +140,7 @@ export async function createTypingDetails(
   }[]
 ): Promise<TypingDetail[]> {
   if (details.length === 0) return [];
+  const supabase = await createServerSupabase();
 
   const { data, error } = await supabase
     .from("typing_details")
@@ -154,6 +159,7 @@ export async function createTypingDetails(
 export async function getTypingDetails(
   sessionId: string
 ): Promise<TypingDetail[]> {
+  const supabase = await createServerSupabase();
   const { data, error } = await supabase
     .from("typing_details")
     .select("*")
@@ -171,6 +177,7 @@ export async function getTypingDetails(
 // 獲取用戶統計數據
 export async function getUserStats(userId: string): Promise<UserStats | null> {
   // 使用 RPC 調用存儲過程
+  const supabase = await createServerSupabase();
   const { data, error } = await supabase.rpc("get_user_stats", {
     user_uuid: userId,
   });
@@ -187,6 +194,7 @@ export async function getUserStats(userId: string): Promise<UserStats | null> {
 export async function getUserPracticeStats(
   userId: string
 ): Promise<{ mode: string; count: number; avg_wpm: number }[]> {
+  const supabase = await createServerSupabase();
   const { data, error } = await supabase
     .from("typing_sessions")
     .select("mode, wpm")
@@ -221,6 +229,7 @@ export async function updateProfile(
   fullName?: string,
   avatarUrl?: string
 ): Promise<{ error: any }> {
+  const supabase = await createServerSupabase();
   const { error } = await supabase
     .from("users")
     .upsert({

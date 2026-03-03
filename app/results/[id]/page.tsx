@@ -3,7 +3,7 @@
 import { useAuth } from "../../../lib/contexts/AuthContext";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getTypingSession, getTypingDetails } from "../../../lib/db/typing-sessions";
+import { fetchTypingSession, fetchTypingDetails } from "@/app/typing/actions";
 import Link from "next/link";
 
 export const runtime = 'edge';
@@ -22,8 +22,8 @@ export default function ResultDetailPage() {
 
     const fetchData = async () => {
       setLoadingData(true);
-      const sessionData = await getTypingSession(sessionId);
-      const detailsData = await getTypingDetails(sessionId);
+      const sessionData = await fetchTypingSession(sessionId);
+      const detailsData = await fetchTypingDetails(sessionId);
 
       if (sessionData && sessionData.user_id === user.id) {
         setSession(sessionData);
