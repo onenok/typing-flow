@@ -2,9 +2,9 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { useTypingPractice } from "@/app/hooks/useTypingPractice";
+import { useTypingModule } from "@/app/hooks/useTypingModule";
 
-type TypingContextType = ReturnType<typeof useTypingPractice>;
+type TypingContextType = ReturnType<typeof useTypingModule>;
 
 const TypingContext = createContext<TypingContextType | null>(null);
 
@@ -15,7 +15,7 @@ export function TypingProvider({
   children: ReactNode;
   initialText?: string;
 }) {
-  const value = useTypingPractice(initialText);
+  const value = useTypingModule(initialText);
 
   return <TypingContext.Provider value={value}>{children}</TypingContext.Provider>;
 }

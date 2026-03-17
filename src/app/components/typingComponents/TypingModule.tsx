@@ -1,4 +1,4 @@
-// components/typing/TypingModule.tsx
+// components/typingComponents/TypingModule.tsx
 "use client";
 import React, { ReactNode } from "react";
 import { TypingProvider } from "./TypingProvider";
@@ -10,16 +10,20 @@ import ResetButton from "./ResetButton";
 interface TypingModuleProps {
   children?: ReactNode;
   initialText?: string;
+  title: string;
 }
 
-export default function TypingModule({
-  children,
-  initialText = "這是一段測試文字，正常來說，你不應該看到它。",
-}: TypingModuleProps) {
+export default function TypingModule(
+  {
+    title = "",
+    children,
+    initialText = "這是一段測試文字，正常來說，你不應該看到它。",
+  }: TypingModuleProps
+) {
   return (
     <TypingProvider initialText={initialText}>
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
-        <p className="text-gray-600 mb-4">練習文本：</p>
+        <p className="text-gray-600 mb-4">{title}</p>
 
         {/* 預設區塊：如果使用者沒有自訂，就顯示這些 */}
         {!hasChild(children, "display") && <TypingDisplay />}

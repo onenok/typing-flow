@@ -3,6 +3,7 @@
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { saveTypingSession, saveTypingDetails } from "@/app/typing/actions";
+import TypingModule from "@/app/components/typingComponents/TypingModule";
 import Link from "next/link";
 
 export default function PracticePage() {
@@ -228,92 +229,7 @@ const handleBlur = () => {
         </h1>
 
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
-          <div className="">
-            <p className="text-gray-600 mb-4">練習文本：</p>
-            <div className="typing-text-container relative bg-gray-100 p-4 rounded-lg text-lg min-h-[3rem]">
-              {text.split("").map((char, index) => (
-                <pre
-                  key={index}
-                  className={`inline-block ${index < charIndex
-                    ? "text-green-500 bg-green-100"
-                    : errored && index === charIndex
-                      ? "text-red-500 bg-red-100"
-                      : "text-gray-700"
-                    }`}
-                >
-                  {char}
-                </pre>
-              ))}
-            </div>
-
-            {/* 隱藏 input */}
-            <p className="text-gray-600 mb-4">輸入顯示：</p>
-            <input
-              ref={hiddenInputRef}
-              type="text"
-              autoFocus
-              style={{
-                width: "300px",
-                height: "2em",
-                padding: "0",
-                margin: "0",
-                border: "none",
-                outline: "none",
-                color: "black",
-                fontSize: "1.25rem",
-                lineHeight: "1.5",
-                pointerEvents: "auto",
-              }}
-              onCompositionStart={handleCompositionStart}
-              onCompositionEnd={handleCompositionEnd}
-              onInput={handleInput}
-              onBlur={handleBlur}
-              autoComplete="off"
-              spellCheck={false}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-8"> {/* module part */}
-            <div className="bg-blue-50 p-4 rounded-lg text-center">
-              <p className="text-gray-600 text-sm">速度 (WPM)</p>
-              <p className="text-2xl font-bold text-blue-600">
-                {startTime
-                  ? Math.round(
-                    ((charIndex / 5) / ((Date.now() - startTime) / 60000)) *
-                    100
-                  ) / 100
-                  : 0}
-              </p>
-            </div>
-            <div className="bg-green-50 p-4 rounded-lg text-center">
-              <p className="text-gray-600 text-sm">準確率 (%)</p>
-              <p className="text-2xl font-bold text-green-600">
-                {startTime && charIndex > 0
-                  ? Math.round(((charIndex) / (charIndex + errors)) * 100)
-                  : 0}
-              </p>
-            </div>
-          </div>
-
-          <div className="text-center">
-            <button
-              onClick={(e) => {
-                setText(sampleText);
-                setTypedText("");
-                setCharIndex(0);
-                setErrors(0);
-                setErrored(false);
-                setStartTime(null);
-                setIsComplete(false);
-                setShouldKeepFocus(true);
-                e.currentTarget.blur();
-              }}
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition mr-4"
-            >
-              重新開始
-            </button>
-
-          </div>
+          <TypingModule title="練習" initialText="這是一段測試文字..." />
         </div>
         {isComplete && session && (
           <Link

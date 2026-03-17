@@ -1,7 +1,7 @@
-// src/hooks/useTypingPractice.ts
+// src/hooks/useTypingModule.ts
 import { useState, useEffect, useCallback, useRef } from "react";
 
-export function useTypingPractice(initialText: string = "這是一段測試文字，正常來說，你不應該看到它。") {
+export function useTypingModule(initialText: string = "這是一段測試文字，正常來說，你不應該看到它。") {
   const [text, setText] = useState(initialText);
   const [typedText, setTypedText] = useState("");
   const [startTime, setStartTime] = useState<number | null>(null);
