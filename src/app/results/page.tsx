@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "../../lib/contexts/AuthContext";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { fetchUserSessions } from "@/app/typing/actions";
 import Link from "next/link";

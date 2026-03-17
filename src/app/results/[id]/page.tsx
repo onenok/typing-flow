@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "../../../lib/contexts/AuthContext";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { fetchTypingSession, fetchTypingDetails } from "@/app/typing/actions";

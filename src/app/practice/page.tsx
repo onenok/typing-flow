@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "../../lib/contexts/AuthContext";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { saveTypingSession, saveTypingDetails } from "@/app/typing/actions";
 import Link from "next/link";
@@ -8,13 +8,13 @@ import Link from "next/link";
 export default function PracticePage() {
   const { user, loading } = useAuth();
   const [text, setText] = useState("");
-  const [typedText, setTypedText] = useState("");
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [charIndex, setCharIndex] = useState(0);
-  const [errors, setErrors] = useState(0);
-  const [errored, setErrored] = useState(false);
-  const [session, setSession] = useState<any>(null);
-  const [isComplete, setIsComplete] = useState(false);
+  const [typedText, setTypedText] = useState(""); //module part
+  const [startTime, setStartTime] = useState<number | null>(null);//module part
+  const [charIndex, setCharIndex] = useState(0);//module part
+  const [errors, setErrors] = useState(0);//module part
+  const [errored, setErrored] = useState(false);//module part
+  const [session, setSession] = useState<any>(null);//module part
+  const [isComplete, setIsComplete] = useState(false);//module part
   const [shouldKeepFocus, setShouldKeepFocus] = useState(true); // 新增：是否應保持焦點
 
   const hiddenInputRef = useRef<HTMLInputElement>(null);
@@ -59,7 +59,8 @@ export default function PracticePage() {
     }
   }, [charIndex, text]);
 
-  const processInputChar = useCallback((char: string) => {
+/* module part */
+const processInputChar = useCallback((char: string) => {
     console.log("processInputChar called with:", char);
     if (loading || isComplete) return;
     console.log("not loading and not complete, processing char:", char);
@@ -73,10 +74,12 @@ export default function PracticePage() {
     console.log(`輸入: ${char} | 預期: ${expected} | index: ${charIndex}`);
 
     if (char === expected) {
+      console.log("correct");
       setCharIndex((prev) => prev + 1);
       setTypedText((prev) => prev + char);
       setErrored(false);
     } else if (char.length === 1) {
+      console.log("WRONG");
       setErrors((prev) => prev + 1);
       setErrored(true);
     }
@@ -84,17 +87,23 @@ export default function PracticePage() {
     // 有輸入 → 開啟自動 focus 模式
     setShouldKeepFocus(true);
 
-    if (errored && charIndex + 1 >= text.length) {
+    if (!errored && charIndex + 1 >= text.length) {
+      console.log("complete");
       completeSession();
+    }
+    else {
+      console.log("not complete");
     }
   }, [text, charIndex, loading, isComplete, startTime]);
 
-  const handleCompositionStart = () => {
+/* module part */
+const handleCompositionStart = () => {
     console.log("開始組字");
     isComposing.current = true;
   };
 
-  const handleCompositionEnd = (e: React.CompositionEvent<HTMLInputElement>) => {
+/* module part */
+const handleCompositionEnd = (e: React.CompositionEvent<HTMLInputElement>) => {
     console.log("結束組字，組字結果:", e.data);
     isComposing.current = false;
     const composed = e.data || "";
@@ -108,7 +117,8 @@ export default function PracticePage() {
     }
   };
 
-  const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
+/* module part */
+const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
     if (isComposing.current) return;
     console.log("輸入事件，當前值:", e.currentTarget.value);
 
@@ -121,7 +131,8 @@ export default function PracticePage() {
   };
 
   // 當 blur 時，根據條件決定是否重新 focus
-  const handleBlur = () => {
+/* module part */
+const handleBlur = () => {
     if (!loading && !isComplete && shouldKeepFocus && hiddenInputRef.current) {
       setTimeout(() => {
         hiddenInputRef.current?.focus();
@@ -131,7 +142,7 @@ export default function PracticePage() {
 
   const completeSession = async () => {
     if (!startTime) return;
-
+    console.log('aaa');
     const duration = (Date.now() - startTime) / 1000;
     const totalChars = text.length;
     const correctChars = totalChars - errors;
@@ -262,7 +273,7 @@ export default function PracticePage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-2 gap-4 mb-8"> {/* module part */}
             <div className="bg-blue-50 p-4 rounded-lg text-center">
               <p className="text-gray-600 text-sm">速度 (WPM)</p>
               <p className="text-2xl font-bold text-blue-600">
@@ -301,16 +312,17 @@ export default function PracticePage() {
             >
               重新開始
             </button>
-            {isComplete && session && (
-              <Link
-                href={`/results/${session.id}`}
-                className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition"
-              >
-                查看結果
-              </Link>
-            )}
+
           </div>
         </div>
+        {isComplete && session && (
+          <Link
+            href={`/results`}
+            className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition"
+          >
+            查看結果
+          </Link>
+        )}
       </main>
     </div>
   );

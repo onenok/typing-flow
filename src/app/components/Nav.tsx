@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "../../lib/contexts/AuthContext";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState } from "react";
 
 export default function Nav() {
