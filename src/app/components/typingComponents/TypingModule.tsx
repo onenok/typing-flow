@@ -3,9 +3,10 @@
 import React, { ReactNode } from "react";
 import { TypingProvider } from "./TypingProvider";
 import TypingDisplay from "./TypingDisplay";
-import HiddenInput from "./HiddenInput";
+import TypingInput from "./TypingInput";
 import TypingStats from "./TypingStats";
 import ResetButton from "./ResetButton";
+import "./typingStyle.css";
 
 interface TypingModuleProps {
   children?: ReactNode;
@@ -22,12 +23,10 @@ export default function TypingModule(
 ) {
   return (
     <TypingProvider initialText={initialText}>
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
-        <p className="text-gray-600 mb-4">{title}</p>
-
+      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8 gap-4 grid">
         {/* 預設區塊：如果使用者沒有自訂，就顯示這些 */}
-        {!hasChild(children, "display") && <TypingDisplay />}
-        {!hasChild(children, "input") && <HiddenInput />}
+        {!hasChild(children, "display") && <TypingDisplay titleN={title} />}
+        {!hasChild(children, "input") && <TypingInput />}
         {!hasChild(children, "stats") && <TypingStats />}
         {!hasChild(children, "reset") && (
           <div className="text-center">
