@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState } from "react";
 import TypingModule from "@/app/components/typingComponents/TypingModule";
 import Link from "next/link";
+import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 
 export default function PracticePage() {
   const { user, loading } = useAuth();
@@ -12,11 +13,7 @@ export default function PracticePage() {
   if (loading) {
     return (
       <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">
-            載入中... loading: {loading ? "true" : "false"} user: {user ? user.id : "null"}
-          </p>
-        </div>
+        <LoadingScreen/>
       </div>
     );
   }
