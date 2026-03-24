@@ -1,7 +1,7 @@
 // components/typing/TypingInput.tsx
 import { useState } from "react";
 import { useTyping } from "./TypingProvider";
-import { getTextWidth } from "@/app/hooks/getTextWidth"
+import { getTextWidth } from "@/app/utils/getTextWidth"
 
 export default function TypingInput() {
   const {
@@ -12,45 +12,49 @@ export default function TypingInput() {
     text,              // 原文字
     displayText,       // 已輸入的顯示內容（包含錯字）
     charIndex,         // 當前應該輸入的位置
+    displayIndex,         //
     errored,           // 是否剛打錯
     isComplete
   } = useTyping();
-  const [inputWidth, setInputWidth] = useState(1);
+  const inputDefaultWidth = 1; //px
+  const [inputWidth, setInputWidth] = useState(inputDefaultWidth);
 
-  let inputPlaceholder = "";
-  const typedTextHTML = text.split("").map((originalChar, index) => {
-    const displayed = displayText[index];
-
+  const typingDisplay = {
+    typed: [],
+    yet: [],
+  }
+  const typedTextHTML = displayText.map(([displayChar, isCorrect], index) => {
     let className = "inline-block text-lg";
 
-    if (index < charIndex) {
+    if (isCorrect) {
       className += " text-green-600"; // 已正確完成的字
       return (
-        <span key={index} className={className}>
-          {displayed || originalChar}
-        </span>
-      );
-    } else if (displayed && displayed !== originalChar) {
-      className += " bg-red-100 text-red-600 font-bold"; // 錯字（紅色 + 粗體）
-      inputPlaceholder += originalChar;
-      return (
-        <span key={index} className={className}>
-          {displayed || originalChar}
-        </span>
+        <pre key={index} className={className}>
+          {displayChar}
+        </pre>
       );
     }
     else {
-      inputPlaceholder += displayed || originalChar; // 未輸入的部分
+      className += " bg-red-100 text-red-600 font-bold"; // 錯字（紅色 + 粗體）
+      return (
+        <pre key={index} className={className}>
+          {displayChar}
+        </pre>
+      );
     }
-  })
+  });
+
+  const inputPlaceholder = text.slice(charIndex, text.length).split('');
+
   function changeInputWidth(e: React.CompositionEvent<HTMLInputElement>) {
-    setInputWidth(getTextWidth(e.data, "1.125rem", "font-mono w-fit inline text-lg font-mono"));
-    console.log(e.data, inputWidth)
-  }
-  function setDefaultInputWidth(){
-    setInputWidth(1);
+    const newInputWidth = getTextWidth(e.data, "1.125rem", "font-mono w-fit inline text-lg font-mono", inputDefaultWidth);
+    console.log(e.data, newInputWidth);
+    setInputWidth(newInputWidth);
   }
 
+  function setDefaultInputWidth() {
+    setInputWidth(inputDefaultWidth);
+  }
   return (
     <div className="mt-6">
       <p className="text-gray-600 mb-2 text-sm">
@@ -73,11 +77,16 @@ export default function TypingInput() {
                    text-black focus:outline-none"
           onCompositionUpdate={changeInputWidth}
           onCompositionStart={handleCompositionStart}
-          onCompositionEnd={(e)=>{handleCompositionEnd(e);setDefaultInputWidth()}}
+          onCompositionEnd={
+            (e) => {
+              handleCompositionEnd(e);
+              setDefaultInputWidth();
+            }
+          }
           onInput={handleInput}
           autoComplete="off"
           spellCheck={false}
-          disabled={!isComplete}
+          disabled={isComplete}
         />
         <span className="text-gray-500">{inputPlaceholder}</span>
       </div>

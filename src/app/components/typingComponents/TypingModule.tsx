@@ -5,7 +5,7 @@ import { TypingProvider } from "./TypingProvider";
 import TypingDisplay from "./TypingDisplay";
 import TypingInput from "./TypingInput";
 import TypingStats from "./TypingStats";
-import ResetButton from "./ResetButton";
+import TButtons from "./Buttons";
 import "./typingStyle.css";
 
 interface TypingModuleProps {
@@ -28,11 +28,7 @@ export default function TypingModule(
         {!hasChild(children, "display") && <TypingDisplay titleN={title} />}
         {!hasChild(children, "input") && <TypingInput />}
         {!hasChild(children, "stats") && <TypingStats />}
-        {!hasChild(children, "reset") && (
-          <div className="text-center">
-            <ResetButton />
-          </div>
-        )}
+        {!hasChild(children, "reset") && <TButtons />}
 
         {/* 使用者自訂內容 */}
         {children}
