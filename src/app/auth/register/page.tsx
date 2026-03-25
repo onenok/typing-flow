@@ -25,7 +25,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+    <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-6 text-gray-900">
           註冊
@@ -40,7 +40,7 @@ export default function RegisterPage() {
               id="fullName"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-gray-600 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="請輸入全名"
               required
             />
@@ -55,7 +55,7 @@ export default function RegisterPage() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-gray-600 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="請輸入電子郵件"
               required
             />
@@ -70,7 +70,7 @@ export default function RegisterPage() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-gray-600 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="請輸入密碼"
               required
             />
