@@ -33,11 +33,12 @@ export default function Nav() {
             <div className="nav-item">載入中...</div>
           </div>
         ) : user ? (
-          <>
+          <div className="nav-list">
             <Link href="/profile" className="nav-item">
               {user?.user_metadata?.full_name || user?.email}
             </Link>
-            <button
+            <Link
+              href={''}
               onClick={async () => {
                 await signOut();
                 setIsMenuOpen(false);
@@ -45,8 +46,8 @@ export default function Nav() {
               className="nav-item"
             >
               登出
-            </button>
-          </>
+            </Link>
+          </div>
         ) : (
           <div className="nav-list">
             <Link href="/auth/login" className="nav-item">
