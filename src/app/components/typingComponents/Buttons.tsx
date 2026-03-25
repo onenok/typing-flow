@@ -1,8 +1,10 @@
 // components/typing/ResetButton.tsx
 import Link from "next/link";
 import { useTyping } from "./TypingProvider";
+import { useAuth } from "@/lib/contexts/AuthContext";
 
 export default function TButtons() {
+  const { user } = useAuth();
   const {
     reset,
     isComplete,
@@ -20,11 +22,20 @@ export default function TButtons() {
         isComplete
           ?
           <button>
-          <Link
-          href="/results"
-          >
-            查看結果
-          </Link>
+            {
+              user ?
+              <Link
+                href="/results"
+              >
+                查看結果記錄
+              </Link>
+              :
+              <Link
+                href="/auth/login"
+              >
+                登入即查看結果記錄
+              </Link>
+            }
           </button>
           :
           ''
