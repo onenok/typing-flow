@@ -3,6 +3,10 @@ import { useState, ReactNode } from "react";
 import { useTyping } from "./TypingProvider";
 import { getTextWidth } from "@/app/utils/getTextWidth"
 
+// TODO: change this part that the current char will show as placeholder in the <input>
+// and the <input> min-height will be thw width of the current char
+// won't display the current char in the {inputPlaceholderHTML} part
+
 export default function TypingInput() {
   const {
     TypingInputRef,

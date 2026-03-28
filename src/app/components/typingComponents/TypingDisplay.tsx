@@ -26,6 +26,24 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
           </pre>
         ))}
       </div>
+      {/*for display current char and it's 倉頡碼*/}
+      <div className="text-gray-500 text-sm mt-2 bg-gray-100 p-2 rounded-lg">
+      {/*for display current char*/}
+        {charIndex < text.length && (
+          <span className="block w-full text-gray-500 text-[24px] mt-2 text-center">
+            {text[charIndex]}
+          </span>
+        )
+        }
+      {/*for display 倉頡碼 of current char*/}
+        <div className="text-gray-500 mt-2">
+          {charIndex < text.length && (
+            <span className="text-gray-500 mt-2">
+
+            </span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
