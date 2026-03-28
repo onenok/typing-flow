@@ -14,8 +14,7 @@
     "hanzi-writer": "^3.7.3",
     "next": "^16.2.1",
     "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "zh-cangjie": "^0.2.0"
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.1",
