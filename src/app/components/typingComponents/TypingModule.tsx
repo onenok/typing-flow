@@ -12,6 +12,8 @@ interface TypingModuleProps {
   children?: ReactNode;
   initialText?: string;
   title: string;
+  tMode: "practice" | "quiz";
+  timeoutS?: number;
 }
 
 export default function TypingModule(
@@ -19,10 +21,12 @@ export default function TypingModule(
     title = "",
     children,
     initialText = "這是一段測試文字，正常來說，你不應該看到它。",
+    tMode,
+    timeoutS = 60
   }: TypingModuleProps
 ) {
   return (
-    <TypingProvider initialText={initialText}>
+    <TypingProvider initialText={initialText} tMode={tMode} timeoutS={timeoutS}>
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8 gap-4 grid">
         {/* 預設區塊：如果使用者沒有自訂，就顯示這些 */}
         {!hasChild(children, "display") && <TypingDisplay titleN={title} />}

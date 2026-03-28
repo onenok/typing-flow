@@ -24,7 +24,7 @@ export default function PracticePage() {
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-900">
           練習模式
         </h1>
-        <TypingModule title="練習文本" initialText={sampleText} />
+        <TypingModule title="練習文本" initialText={sampleText} tMode="practice" />
       </main>
     </div>
   );
