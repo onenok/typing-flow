@@ -20,7 +20,7 @@ export default function TypingInput() {
     errored,           // 是否剛打錯
     isComplete
   } = useTyping();
-  const inputDefaultWidth = 1; //px
+  const inputDefaultWidth = 0; //px
   const [inputWidth, setInputWidth] = useState(inputDefaultWidth);
 
   /*
@@ -53,7 +53,7 @@ export default function TypingInput() {
     });
 
   const inputPlaceholderHTML: Iterable<ReactNode> = text
-    .slice(charIndex, text.length)
+    .slice(charIndex+1, text.length)
     .split('')
     .map((char, index) => {
       const inputPlaceholderClassName = "inline-block text-lg text-gray-500";
@@ -65,7 +65,7 @@ export default function TypingInput() {
     });
 
   function changeInputWidth(e: React.CompositionEvent<HTMLInputElement>) {
-    const newInputWidth = getTextWidth(e.data, "1.125rem", "font-mono w-fit inline text-lg font-mono", inputDefaultWidth);
+    const newInputWidth = 2 + getTextWidth(e.data, "1.125rem", "font-mono w-fit inline text-lg font-mono", inputDefaultWidth);
     console.log(e.data, newInputWidth);
     setInputWidth(newInputWidth);
   }
@@ -84,15 +84,18 @@ export default function TypingInput() {
         onClick={() => {
           TypingInputRef.current?.focus();
         }}
+        onMouseDown={() => {
+          TypingInputRef.current?.focus();
+        }}
       >
         {typedTextHTML/*typed words*/}
         <input
           ref={TypingInputRef}
-          type="text"
+          type={isComplete ? "hidden" : "text"}
           autoFocus
-          style={{ width: inputWidth }}
-          className="inline bg-none border-none text-lg font-mono
-                   text-black focus:outline-none"
+          style={{ width: inputWidth, minWidth: getTextWidth(text[charIndex], "1.125rem", "font-mono w-fit inline text-lg font-mono", inputDefaultWidth) }}
+          className="inline bg-blue-200 border-none text-lg font-mono
+                   text-black focus:outline-none px-px"
           onCompositionUpdate={changeInputWidth}
           onCompositionStart={handleCompositionStart}
           onCompositionEnd={
@@ -105,6 +108,7 @@ export default function TypingInput() {
           autoComplete="off"
           spellCheck={false}
           disabled={isComplete}
+          placeholder={text[charIndex]}
         />
         {inputPlaceholderHTML}
       </div>

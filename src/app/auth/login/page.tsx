@@ -1,26 +1,53 @@
 "use client";
 
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 
 export default function LoginPage() {
-  const { signIn } = useAuth();
+  const { signIn, user, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [logining, setLogining] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
+  
+  useEffect(() => {
+      if (user && !loading) {
+        router.push('/');
+        // router.replace('/') 也可以，視需求而定
+      }
+    }, [user, loading, router]);
+  if (loading) {
+    return (
+      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+        <LoadingScreen />
+      </div>
+    );
+  }
+  if (user) {
+    return (
+      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+        已登入，正在跳轉...
+      </div>
+    )
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setLogining(true);
     setError("");
 
     const { error } = await signIn(email, password);
     if (error) {
       setError(error.message || "登入失敗");
+    } else {
+      // redirect to main page
+      router.push('/');
     }
-    setLoading(false);
+    setLogining(false);
   };
 
   return (
@@ -68,16 +95,16 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={logining}
             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition disabled:opacity-50"
           >
-            {loading ? "登入中..." : "登入"}
+            {logining? "登入中..." : "登入"}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-600">
           還沒有帳戶？{' '}
-<Link href="/auth/register" className="text-blue-500 hover:underline">
+          <Link href="/auth/register" className="text-blue-500 hover:underline">
             立即註冊
           </Link>
         </div>

@@ -1,8 +1,17 @@
 // src/hooks/useTypingModule.ts
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { saveTypingDetails, saveTypingSession } from "@/app/typing/actions";
-export function useTypingModule(initialText: string = "這是一段測試文字，正常來說，你不應該看到它。") {
+export function useTypingModule(
+  initialText: string = "這是一段測試文字，正常來說，你不應該看到它。",
+  tMode: "practice" | "quiz",
+  timeoutS: number = 60,
+) {
   //
+  const { user, loading } = useAuth()
+  //
+  const [mode, setMode] = useState(tMode)
+
   const [text, setText] = useState(initialText);
   const [typedText, setTypedText] = useState(""); // 用來計算正確字數與 WPM
   const [displayText, setDisplayText] = useState<[string, boolean][] | []>([]); // 顯示用的輸入歷程（含錯字）
@@ -10,22 +19,67 @@ export function useTypingModule(initialText: string = "這是一段測試文字�
   const [startTime, setStartTime] = useState<number | null>(null);
   const [charIndex, setCharIndex] = useState(0);
   const [displayIndex, setDisplayIndex] = useState(0);
+  const [wpm, setWpm] = useState(0);
+  const [accuracy, setAccuracy] = useState(0);
   const [errors, setErrors] = useState(0);
   const [errored, setErrored] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-  const [shouldKeepFocus, setShouldKeepFocus] = useState(true);
 
   const TypingInputRef = useRef<HTMLInputElement>(null);
   const isComposing = useRef(false);
 
+  // 計算 WPM 和準確率（給 UI 直接用）
+  useEffect(() => {
+    setWpm(
+      startTime
+        ? Math.round(((charIndex / 5) / ((Date.now() - startTime) / 60000)) * 100) / 100
+        : 0
+    );
+    setAccuracy(
+      startTime && charIndex > 0
+        ? Math.round((charIndex / (charIndex + errors)) * 100)
+        : 0
+    );
+  }, [startTime, charIndex, errors])
+
+  useEffect(() => {
+    console.log("=====Start!======")
+  }, [])
   useEffect(() => {
     //
-    if (!isComplete) return;
+    if (!isComplete || !user || !startTime || loading) return;
 
     //
+    const error = saveTypingSession({
+      user: user,
+      mode: mode,
+      text_content: text,
+      duration_seconds: Date.now() - startTime,
+      total_chars: text.length,
+      correct_chars: charIndex,
+      errors: errors,
+      wpm: wpm,
+      accuracy: accuracy,
+    })
+  }, [isComplete, accuracy, wpm, errors, user, mode, text, startTime, charIndex]);
+  
+  /*
+  idk how the fuck it do, it for, it works.
+  useEffect(() => {
+    //
+    if ( !user || !startTime || loading) return;
 
-  }, [isComplete == true]);
-
+    //
+    saveTypingDetails({
+      session_id: ,
+      char_index: ,
+      expected_char: ,
+      typed_char: ,
+      is_correct: ,
+      time_ms: ,
+    })
+  }, [isComplete, accuracy, wpm, errors, user, mode, text, startTime, charIndex]);
+  */
   const processInputChar = useCallback(
     (char: string) => {
       if (isComplete) return;
@@ -61,10 +115,9 @@ export function useTypingModule(initialText: string = "這是一段測試文字�
       }
 
       setDisplayText(newDisplay);
-      setShouldKeepFocus(true);
 
       if (charIndex + 1 >= text.length) {
-        console.log("what?")
+        console.log("=====Complete!======")
         setIsComplete(true);
       }
     },
@@ -73,6 +126,7 @@ export function useTypingModule(initialText: string = "這是一段測試文字�
 
   const handleCompositionStart = () => {
     isComposing.current = true;
+    console.log("Start Composing")
   };
 
   const handleCompositionEnd = (e: React.CompositionEvent<HTMLInputElement>) => {
@@ -82,13 +136,14 @@ export function useTypingModule(initialText: string = "這是一段測試文字�
       for (const char of composed) {
         processInputChar(char);
       }
+      console.log("End Composing")
     }
     if (TypingInputRef.current) {
       TypingInputRef.current.value = "";
     }
   };
 
-  const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
+  const handleInput = (e: React.InputEvent<HTMLInputElement>) => {
     if (isComposing.current) return;
 
     const value = e.currentTarget.value;
@@ -100,6 +155,7 @@ export function useTypingModule(initialText: string = "這是一段測試文字�
   };
 
   const reset = () => {
+    console.log("=====Start!======")
     setText(initialText);
     setTypedText("");
     setCharIndex(0);
@@ -108,18 +164,8 @@ export function useTypingModule(initialText: string = "這是一段測試文字�
     setErrored(false);
     setStartTime(null);
     setIsComplete(false);
-    setShouldKeepFocus(true);
     setDisplayText([]);
   };
-
-  // 計算 WPM 和準確率（給 UI 直接用）
-  const wpm = startTime
-    ? Math.round(((charIndex / 5) / ((Date.now() - startTime) / 60000)) * 100) / 100
-    : 0;
-
-  const accuracy = startTime && charIndex > 0
-    ? Math.round((charIndex / (charIndex + errors)) * 100)
-    : 0;
 
   return {
     text,

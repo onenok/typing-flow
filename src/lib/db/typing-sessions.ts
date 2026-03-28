@@ -67,6 +67,34 @@ export async function createTypingSession(session: {
   return data;
 }
 
+// 創建打字詳細記錄
+export async function createTypingDetails(
+  details: {
+    session_id: string;
+    char_index: number;
+    expected_char: string;
+    typed_char: string;
+    is_correct: boolean;
+    time_ms: number;
+  }[]
+): Promise<TypingDetail[]> {
+  if (details.length === 0) return [];
+  const supabase = await createServerSupabase();
+
+  const { data, error } = await supabase
+    .from("typing_details")
+    .insert(details)
+    .select();
+
+  if (error) {
+    console.error("Error creating typing details:", error);
+    return [];
+  }
+
+  return data;
+}
+
+
 // 獲取用戶的所有打字會話
 export async function getUserTypingSessions(
   userId: string,
@@ -127,34 +155,6 @@ export async function deleteTypingSession(
 
   return true;
 }
-
-// 創建打字詳細記錄
-export async function createTypingDetails(
-  details: {
-    session_id: string;
-    char_index: number;
-    expected_char: string;
-    typed_char: string;
-    is_correct: boolean;
-    time_ms: number;
-  }[]
-): Promise<TypingDetail[]> {
-  if (details.length === 0) return [];
-  const supabase = await createServerSupabase();
-
-  const { data, error } = await supabase
-    .from("typing_details")
-    .insert(details)
-    .select();
-
-  if (error) {
-    console.error("Error creating typing details:", error);
-    return [];
-  }
-
-  return data;
-}
-
 // 獲取會話的詳細記錄
 export async function getTypingDetails(
   sessionId: string

@@ -1,27 +1,52 @@
 "use client";
 
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
-  const { signUp } = useAuth();
+  const { signUp, user, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [logining, setLogining] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
 
+  useEffect(() => {
+    if (user && !loading) {
+      router.push('/');
+      // router.replace('/') 也可以，視需求而定
+    }
+  }, [user, loading, router]);
+  if (loading) {
+    return (
+      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+        <LoadingScreen />
+      </div>
+    );
+  }
+  if (user) {
+    return (
+      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+        已登入，正在跳轉...
+      </div>
+    )
+  }
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setLogining(true);
     setError("");
 
     const { error } = await signUp(email, password, fullName);
     if (error) {
       setError(error.message || "註冊失敗");
+    } else {
+      router.push('/auth/login');
     }
-    setLoading(false);
+    setLogining(false);
   };
 
   return (
@@ -84,10 +109,10 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={logining}
             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition disabled:opacity-50"
           >
-            {loading ? "註冊中..." : "註冊"}
+            {logining ? "註冊中..." : "註冊"}
           </button>
         </form>
 
