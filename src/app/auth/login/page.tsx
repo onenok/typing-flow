@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const { signIn, user, loading } = useAuth();
@@ -40,14 +41,23 @@ export default function LoginPage() {
     setLogining(true);
     setError("");
 
-    const { error } = await signIn(email, password);
-    if (error) {
-      setError(error.message || "登入失敗");
-    } else {
-      // redirect to main page
-      router.push('/');
-    }
-    setLogining(false);
+    
+    toast.promise(
+      signIn(email, password),
+      {
+        loading: "登入中...",
+        success: () => {
+          router.push('/');
+          setLogining(false);
+          return "✅登入成功！";
+        },
+        error: (err) => {
+          console.error("登入失敗:", err);
+          setLogining(false);
+          return `❌ 登入失敗，請稍後再試\n${err}`;
+        },
+      }
+    )
   };
 
   return (

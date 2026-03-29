@@ -9,10 +9,10 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
-  signOut: () => Promise<{ error: any | null }>;
-  updateProfile: (fullName?: string, avatarUrl?: string, bio?: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<boolean>;
+  signUp: (email: string, password: string, fullName?: string) => Promise<boolean>;
+  signOut: () => Promise<boolean>;
+  updateProfile: (fullName?: string, avatarUrl?: string, bio?: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,37 +45,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [supabase]);
 
-  const signIn = async (email: string, password: string) => {
-    if (!supabase) return { error: new Error("Supabase client 未初始化") };
+  // ==================== 改成 throw error 的模式 ====================
+
+  const signIn = async (email: string, password: string): Promise<boolean> => {
+    if (!supabase) throw new Error("Supabase client 未初始化");
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
+
+    if (error) {
+      throw new Error(error.message || "登入失敗");
+    }
+    return true;
   };
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
-    if (!supabase) return { error: new Error("Supabase client 未初始化") };
-    
+  const signUp = async (email: string, password: string, fullName?: string): Promise<boolean> => {
+    if (!supabase) throw new Error("Supabase client 未初始化");
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: {
-          full_name: fullName,        // 會被 trigger 自動存到 profiles.full_name
-        },
+        data: { full_name: fullName },
       },
     });
-    return { error };
+
+    if (error) {
+      throw new Error(error.message || "註冊失敗");
+    }
+    return true;
   };
 
-  const signOut = async () => {
-    if (!supabase) return { error: new Error("Supabase client 未初始化") };
+  const signOut = async (): Promise<boolean> => {
+    if (!supabase) throw new Error("Supabase client 未初始化");
+
     const { error } = await supabase.auth.signOut();
-    return { error };
+
+    if (error) {
+      throw new Error(error.message || "登出失敗");
+    }
+    return true;
   };
 
-  // 更新後的 updateProfile（改用 profiles 表）
-  const updateProfile = async (fullName?: string, avatarUrl?: string, bio?: string) => {
+  const updateProfile = async (
+    fullName?: string,
+    avatarUrl?: string,
+    bio?: string
+  ): Promise<boolean> => {
     if (!supabase || !user?.id) {
-      return { error: new Error("無法更新：未登入或 Supabase 未初始化") };
+      throw new Error("無法更新：未登入或 Supabase 未初始化");
     }
 
     const { error } = await supabase
@@ -88,7 +105,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       .eq("id", user.id);
 
-    return { error };
+    if (error) {
+      throw new Error(error.message || "更新個人資料失敗");
+    }
+    return true;
   };
 
   return (

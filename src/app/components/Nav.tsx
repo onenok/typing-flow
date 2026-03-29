@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Nav() {
   const { user, loading, signOut } = useAuth();
@@ -40,8 +41,20 @@ export default function Nav() {
             <Link
               href={''}
               onClick={async () => {
-                await signOut();
-                setIsMenuOpen(false);
+                toast.promise(
+                  signOut(),
+                  {
+                    loading: "登出中...",
+                    success: () => {
+                      setIsMenuOpen(false);
+                      return "✅登出成功！";
+                    },
+                    error: (err) => {
+                      console.error("登出失敗:", err);
+                      return `❌ 登出失敗，請稍後再試\n${err}`;
+                    },
+                  }
+                )
               }}
               className="nav-item"
             >
