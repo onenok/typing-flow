@@ -1,3 +1,4 @@
+// src/app/typing/actions.ts
 'use server';  // 標記檔案為 Server Action
 
 import { createServerSupabase } from '@/lib/supabase/server/server';
