@@ -1,4 +1,4 @@
-// components/typing/TypingInput.tsx
+// src\app\components\typingComponents\TypingInput.tsx
 import { useState, ReactNode } from "react";
 import { useTyping } from "./TypingProvider";
 import { getTextWidth } from "@/app/utils/getTextWidth"

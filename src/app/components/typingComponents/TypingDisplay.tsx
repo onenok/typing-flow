@@ -1,4 +1,4 @@
-// components/typing/TypingDisplay.tsx
+// src\app\components\typingComponents\TypingDisplay.tsx
 import { useTyping } from "./TypingProvider";
 import { getCangjie } from "@/lib/cangjie3";
 interface TypingDisplayProps {

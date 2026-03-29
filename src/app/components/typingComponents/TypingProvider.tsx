@@ -1,4 +1,4 @@
-// components/typing/TypingProvider.tsx
+// src\app\components\typingComponents\TypingProvider.tsx
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";

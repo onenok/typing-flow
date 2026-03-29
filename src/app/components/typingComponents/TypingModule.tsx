@@ -1,4 +1,4 @@
-// components/typingComponents/TypingModule.tsx
+// src\app\components\typingComponents\TypingModule.tsx
 "use client";
 import React, { ReactNode } from "react";
 import { TypingProvider } from "./TypingProvider";

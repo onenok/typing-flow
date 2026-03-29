@@ -1,4 +1,4 @@
-// components/typing/ResetButton.tsx
+// src\app\components\typingComponents\Buttons.tsx
 import Link from "next/link";
 import { useTyping } from "./TypingProvider";
 import { useAuth } from "@/lib/contexts/AuthContext";

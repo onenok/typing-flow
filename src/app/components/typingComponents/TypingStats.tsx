@@ -1,4 +1,4 @@
-// components/typing/TypingStats.tsx
+// src\app\components\typingComponents\TypingStats.tsx
 import { useTyping } from "./TypingProvider";
 
 export default function TypingStats() {

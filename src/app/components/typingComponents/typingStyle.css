@@ -1,3 +1,4 @@
+/* src\app\components\typingComponents\typingStyle.css */
 /* 游標閃爍動畫 */
 @keyframes blink {
   0%, 100% { opacity: 1; }
