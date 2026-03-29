@@ -6,6 +6,7 @@ import "./styles/global.css";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,12 @@ export default function RootLayout({
               </AuthProvider>
             </div>
           </div>
+          <Toaster
+            position="top-center"
+            richColors
+            closeButton
+            duration={3000}
+          />
         </body>
       </html>
     </StrictMode>

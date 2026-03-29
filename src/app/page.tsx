@@ -1,8 +1,20 @@
+"use client"
 import Link from "next/link";
+import { useAuth } from "@/lib/contexts/AuthContext"
+import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 
 export default function Home() {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+        <LoadingScreen />
+      </div>
+    )
+  }
+
   return (
-    <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100">
+    <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100">
       <main className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
@@ -53,15 +65,18 @@ export default function Home() {
             </Link>
           </div>
         </div>
-
-        <div className="text-center">
-          <p className="text-gray-500">
-            需要帳戶？{' '}
-            <Link href="/auth/register" className="text-blue-500 hover:underline">
-              立即註冊
-            </Link>
-          </p>
-        </div>
+        {!user &&
+          (
+            <div className="text-center">
+              <p className="text-gray-500">
+                需要帳戶？{' '}
+                <Link href="/auth/register" className="text-blue-500 hover:underline">
+                  立即註冊
+                </Link>
+              </p>
+            </div>
+          )
+        }
       </main>
     </div>
   );

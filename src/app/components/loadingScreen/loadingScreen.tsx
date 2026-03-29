@@ -1,6 +1,6 @@
 "use client";
 import "./loadingStyle.css";
-export default function loadingScreen() {
+export default function LoadingScreen() {
 
     return (
         <div className="text-center">

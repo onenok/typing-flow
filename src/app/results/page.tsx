@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { fetchUserSessions } from "@/app/typing/actions";
 import Link from "next/link";
+import LoadingScreen from "../components/loadingScreen/loadingScreen";
 
 export default function ResultsPage() {
   const { user, loading } = useAuth();
@@ -27,17 +28,31 @@ export default function ResultsPage() {
 
   if (loading || loadingData) {
     return (
-      <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">載入中...</p>
-        </div>
+      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+        <LoadingScreen/>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+        <main className="container mx-auto px-4 py-8">
+          <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">
+            請登入帳戶以使用結果查詢功能
+          </h2>
+          <Link
+            href="/auth/login"
+          >
+          </Link>
+        </main>
       </div>
     );
   }
 
   if (sessions.length === 0) {
     return (
-      <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100">
+      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100">
         <main className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-center mb-8 text-gray-900">
             練習結果
@@ -68,7 +83,7 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100">
+    <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100">
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-900">
           練習結果
