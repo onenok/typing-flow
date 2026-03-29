@@ -1,3 +1,4 @@
+// src\lib\db\typing-sessions.ts
 import { createServerSupabase } from "../supabase/server/server";
 
 export interface TypingSession {
@@ -48,7 +49,7 @@ export async function createTypingSession(session: {
   duration_seconds: number | null;
   total_chars: number;
   correct_chars: number;
-  errors: number;
+  errors?: number;
   wpm: number;
   accuracy: number;
 }): Promise<TypingSession | null> {
@@ -63,7 +64,6 @@ export async function createTypingSession(session: {
     console.error("Error creating typing session:", error);
     return null;
   }
-
   return data;
 }
 
@@ -186,7 +186,6 @@ export async function getUserStats(userId: string): Promise<UserStats | null> {
     console.error("Error fetching user stats:", error);
     return null;
   }
-
   return data as UserStats;
 }
 
@@ -221,22 +220,4 @@ export async function getUserPracticeStats(
     count: stats.count,
     avg_wpm: stats.totalWpm / stats.count,
   }));
-}
-
-// 更新用戶資料
-export async function updateProfile(
-  userId: string,
-  fullName?: string,
-  avatarUrl?: string
-): Promise<{ error: any }> {
-  const supabase = await createServerSupabase();
-  const { error } = await supabase
-    .from("users")
-    .upsert({
-      id: userId,
-      full_name: fullName,
-      avatar_url: avatarUrl,
-      updated_at: new Date().toISOString(),
-    });
-  return { error };
 }

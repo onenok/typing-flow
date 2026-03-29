@@ -1,8 +1,9 @@
+// src\lib\contexts\AuthContext.tsx
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { createClient } from "../supabase/client";  // 改成匯入函式
+import { createClient } from "../supabase/client";
 
 interface AuthContextType {
   user: User | null;
@@ -11,7 +12,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any | null }>;
-  updateProfile: (fullName?: string, avatarUrl?: string) => Promise<{ error: any }>;
+  updateProfile: (fullName?: string, avatarUrl?: string, bio?: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,21 +47,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) return { error: new Error("Supabase client 未初始化") };
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error };
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     if (!supabase) return { error: new Error("Supabase client 未初始化") };
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          full_name: fullName,
+          full_name: fullName,        // 會被 trigger 自動存到 profiles.full_name
         },
       },
     });
@@ -68,21 +67,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    if (!supabase) return { error: new Error("Supabase client 未初始化, ???but how???") };
+    if (!supabase) return { error: new Error("Supabase client 未初始化") };
     const { error } = await supabase.auth.signOut();
     return { error };
   };
 
-  const updateProfile = async (fullName?: string, avatarUrl?: string) => {
-    if (!supabase || !user?.id) return { error: new Error("無法更新") };
+  // 更新後的 updateProfile（改用 profiles 表）
+  const updateProfile = async (fullName?: string, avatarUrl?: string, bio?: string) => {
+    if (!supabase || !user?.id) {
+      return { error: new Error("無法更新：未登入或 Supabase 未初始化") };
+    }
+
     const { error } = await supabase
-      .from("users")
-      .upsert({
-        id: user?.id,
+      .from("profiles")
+      .update({
         full_name: fullName,
         avatar_url: avatarUrl,
+        bio: bio,
         updated_at: new Date().toISOString(),
-      });
+      })
+      .eq("id", user.id);
+
     return { error };
   };
 
