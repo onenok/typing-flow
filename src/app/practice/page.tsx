@@ -8,7 +8,7 @@ import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 
 export default function PracticePage() {
   const { user, loading } = useAuth();
-  const sampleText = `這是一段測試文字...`;
+  const sampleText = `昨杯場丈中`;
 
   if (loading) {
     return (

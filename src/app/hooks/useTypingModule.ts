@@ -2,6 +2,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { saveTypingDetails, saveTypingSession } from "@/app/typing/actions";
+import { toast } from "sonner";
+
 export function useTypingModule(
   initialText: string = "這是一段測試文字，正常來說，你不應該看到它。",
   tMode: "practice" | "quiz",
@@ -24,9 +26,10 @@ export function useTypingModule(
 
   const TypingInputRef = useRef<HTMLInputElement>(null);
   const isComposing = useRef(false);
+  const hasSavedRef = useRef(false);
 
   useEffect(() => {
-    console.log("=====Start!======")  
+    console.log("=====Start!======")
   }, []);
 
   // 計算 WPM 和準確率
@@ -38,24 +41,54 @@ export function useTypingModule(
 
   // === 打字完成後儲存到資料庫 ===
   useEffect(() => {
-    if (!isComplete || !user?.id || !startTime || loading) return;
+    if (!isComplete || !user?.id || !startTime || loading || hasSavedRef.current) return;
+    hasSavedRef.current = true;
 
-    const durationSeconds = Math.round((Date.now() - startTime) / 1000); // 轉成秒數
+    const durationSeconds = Math.round((Date.now() - startTime) / 1000);
 
-    saveTypingSession({
-      user_id: user.id,           // ← 這裡改成 user_id，並使用 profiles.id
-      mode: mode,
-      text_type: "cangjie",       // 你可以之後改成動態
+    const session = {
+      user_id: user.id,
+      mode,
+      text_type: "cangjie",
       text_content: text,
       duration_seconds: durationSeconds,
       total_chars: text.length,
       correct_chars: charIndex,
-      errors: errors,
-      wpm: wpm,
-      accuracy: accuracy,
-    }).catch(err => console.error("儲存打字記錄失敗:", err));
+      errors,
+      wpm,
+      accuracy,
+    };
 
-  }, [isComplete, user, mode, text, startTime, charIndex, errors, wpm, accuracy, loading]);
+    console.log("準備儲存打字記錄:", session);
+
+    toast.promise(
+      saveTypingSession(session),
+      {
+        loading: "正在儲存打字記錄...",
+        success: (result) => {
+          if (result) {
+            return "✅ 打字記錄已成功儲存！";
+          }
+          return "儲存完成";
+        },
+        error: (err) => {
+          console.error("儲存失敗:", err);
+          return "❌ 儲存失敗，請稍後再試: "+err;
+        },
+      }
+    );
+  }, [
+    isComplete,   // 最重要的觸發條件
+    user?.id,     // 必須監聽
+    mode,
+    text,
+    startTime,
+    charIndex,
+    errors,
+    wpm,
+    accuracy,
+    loading
+  ]);
 
   // ==================== 輸入處理 ====================
   const processInputChar = useCallback((char: string) => {
@@ -121,6 +154,7 @@ export function useTypingModule(
     setStartTime(null);
     setIsComplete(false);
     setDisplayText([]);
+    hasSavedRef.current = false;
   };
 
   return {

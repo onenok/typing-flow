@@ -40,6 +40,8 @@ export interface UserStats {
   last_session: string | null;
 }
 
+// ==================== 寫入類函數（必須 throw error） ====================
+
 // 創建新的打字會話
 export async function createTypingSession(session: {
   user_id: string;
@@ -52,8 +54,9 @@ export async function createTypingSession(session: {
   errors?: number;
   wpm: number;
   accuracy: number;
-}): Promise<TypingSession | null> {
+}): Promise<TypingSession> {
   const supabase = await createServerSupabase();
+
   const { data, error } = await supabase
     .from("typing_sessions")
     .insert(session)
@@ -61,9 +64,23 @@ export async function createTypingSession(session: {
     .single();
 
   if (error) {
-    console.error("Error creating typing session:", error);
-    return null;
+    let message = "儲存打字記錄失敗";
+
+    if (error.code === "23503") {
+      message = "找不到對應的用戶資料，請確認已登入";
+    } else if (error.code === "23505") {
+      message = "資料重複，請稍後再試";
+    } else if (error.message) {
+      message = error.message;
+    }
+
+    throw new Error(message);
   }
+
+  if (!data) {
+    throw new Error("儲存失敗：未返回資料");
+  }
+
   return data;
 }
 
@@ -79,6 +96,7 @@ export async function createTypingDetails(
   }[]
 ): Promise<TypingDetail[]> {
   if (details.length === 0) return [];
+
   const supabase = await createServerSupabase();
 
   const { data, error } = await supabase
@@ -87,15 +105,46 @@ export async function createTypingDetails(
     .select();
 
   if (error) {
-    console.error("Error creating typing details:", error);
-    return [];
+    let message = "儲存打字細節失敗";
+
+    if (error.code === "23503") {
+      message = "找不到對應的打字會話，請確認 session_id 正確";
+    }
+
+    throw new Error(message);
   }
 
-  return data;
+  return data || [];
 }
 
+// 刪除打字會話
+export async function deleteTypingSession(
+  sessionId: string,
+  userId: string
+): Promise<boolean> {
+  const supabase = await createServerSupabase();
 
-// 獲取用戶的所有打字會話
+  const { error } = await supabase
+    .from("typing_sessions")
+    .delete()
+    .eq("id", sessionId)
+    .eq("user_id", userId);
+
+  if (error) {
+    let message = "刪除打字記錄失敗";
+
+    if (error.code === "23503") {
+      message = "權限不足或記錄不存在";
+    }
+
+    throw new Error(message);
+  }
+
+  return true;
+}
+
+// ==================== 查詢類函數（保持原本返回空值或 null） ====================
+
 export async function getUserTypingSessions(
   userId: string,
   limit: number = 50,
@@ -136,26 +185,6 @@ export async function getTypingSession(
   return data;
 }
 
-// 刪除打字會話
-export async function deleteTypingSession(
-  sessionId: string,
-  userId: string
-): Promise<boolean> {
-  const supabase = await createServerSupabase();
-  const { error } = await supabase
-    .from("typing_sessions")
-    .delete()
-    .eq("id", sessionId)
-    .eq("user_id", userId);
-
-  if (error) {
-    console.error("Error deleting typing session:", error);
-    return false;
-  }
-
-  return true;
-}
-// 獲取會話的詳細記錄
 export async function getTypingDetails(
   sessionId: string
 ): Promise<TypingDetail[]> {
@@ -186,6 +215,7 @@ export async function getUserStats(userId: string): Promise<UserStats | null> {
     console.error("Error fetching user stats:", error);
     return null;
   }
+
   return data as UserStats;
 }
 
@@ -207,7 +237,7 @@ export async function getUserPracticeStats(
   // 按模式分組計算
   const stats = new Map<string, { count: number; totalWpm: number }>();
 
-  data?.forEach((session) => {
+  data?.forEach((session: any) => {
     const existing = stats.get(session.mode) || { count: 0, totalWpm: 0 };
     stats.set(session.mode, {
       count: existing.count + 1,
@@ -215,9 +245,9 @@ export async function getUserPracticeStats(
     });
   });
 
-  return Array.from(stats.entries()).map(([mode, stats]) => ({
+  return Array.from(stats.entries()).map(([mode, s]) => ({
     mode,
-    count: stats.count,
-    avg_wpm: stats.totalWpm / stats.count,
+    count: s.count,
+    avg_wpm: s.totalWpm / s.count,
   }));
 }
