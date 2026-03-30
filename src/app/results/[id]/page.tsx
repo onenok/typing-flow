@@ -37,7 +37,7 @@ export default function ResultDetailPage() {
 
   if (loading || loadingData) {
     return (
-      <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600">載入中...</p>
         </div>
@@ -47,7 +47,7 @@ export default function ResultDetailPage() {
 
   if (!session) {
     return (
-      <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600">找不到結果或無權訪問</p>
           <Link href="/results" className="text-blue-500 hover:underline mt-4 inline-block">
@@ -62,7 +62,7 @@ export default function ResultDetailPage() {
   const errorCount = details.length - correctCount;
 
   return (
-    <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100">
+    <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100">
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-900">
           練習結果

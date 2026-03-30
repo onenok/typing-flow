@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function PrivacyPolicyPage() {
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100">
+        <div className="min-h-screen bg-linear-to-b from-blue-50 to-indigo-100">
             <main className="container mx-auto px-4 py-16">
                 <h1 className="text-4xl font-bold text-gray-900 mb-8">隱私政策</h1>
                 <p className="text-gray-700 mb-6">
