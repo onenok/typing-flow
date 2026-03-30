@@ -3,6 +3,8 @@
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
   const { user, loading, updateProfile } = useAuth();
@@ -18,26 +20,36 @@ export default function ProfilePage() {
     }
   }, [user]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setLoadingUpdate(true);
     setError("");
 
-    const { error } = await updateProfile(fullName, avatarUrl);
-    if (error) {
-      setError(error.message || "更新失敗");
-    }
-    setLoadingUpdate(false);
+
+    toast.promise(
+      updateProfile(fullName, avatarUrl),
+      {
+        loading: "更新中...",
+        success: () => {
+          setLoadingUpdate(false);
+          return "✅更新成功！";
+        },
+        error: (err) => {
+          console.error("更新失敗:", err);
+          setError(err.message || "更新失敗");
+          setLoadingUpdate(false);
+          return `❌ 更新失敗，請稍後再試\n${err}`;
+        },
+      }
+    );
   };
 
   if (loading) {
     return (
-      <div className="h-full bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">載入中...</p>
-        </div>
+      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+        <LoadingScreen />
       </div>
-    );
+    )
   }
 
   if (!user) {
