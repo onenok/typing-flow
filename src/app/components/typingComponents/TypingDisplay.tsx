@@ -56,8 +56,8 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
         (
           <div className="text-gray-500 text-sm mt-2 bg-gray-100 p-2 rounded-lg">
             {/*for display current char*/}
-            <h2 className="block w-full text-gray-500 text-[40px] text-center">
-              {text[charIndex]}
+            <h2 className="bg-blue-300 block w-fit place-self-center text-gray-500 text-[40px] text-center">
+              <pre>{text[charIndex]}</pre>
             </h2>
             {/*for display 倉頡碼 of current char*/}
             <div className="text-gray-500 flex justify-center">
