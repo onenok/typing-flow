@@ -1,5 +1,5 @@
 // src\lib\db\typing-sessions.ts
-import { createServerSupabase } from "../supabase/server/server";
+import { createServerSupabase } from "@/lib/supabase/server/server";
 
 export interface TypingSession {
   id: string;
