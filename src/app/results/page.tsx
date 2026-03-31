@@ -4,13 +4,13 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { fetchUserSessions } from "@/app/typing/actions";
 import Link from "next/link";
-import LoadingScreen from "../components/loadingScreen/loadingScreen";
+import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 
 export default function ResultsPage() {
   const { user, loading } = useAuth();
   const [sessions, setSessions] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
-
+  console.log(user)
   useEffect(() => {
     if (user) {
       const fetchData = async () => {
