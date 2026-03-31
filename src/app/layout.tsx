@@ -7,6 +7,9 @@ import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import { Toaster } from "sonner";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import "overlayscrollbars/overlayscrollbars.css";
+import OverlayScrollbar from "@/app/components/ui/OverlayScrollbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,13 +38,17 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning
         >
           <div id="root">
-            <div className="App">
-              <AuthProvider>
-                <Nav />
-                <div className="main-content">{children}</div>
-                <Footer />
-              </AuthProvider>
-            </div>
+            <OverlayScrollbar>
+              <div className="App">
+                <AuthProvider>
+                  <Nav />
+                  <div className="main-content">
+                    {children}
+                  </div>
+                  <Footer />
+                </AuthProvider>
+              </div>
+            </OverlayScrollbar>
           </div>
           <Toaster
             position="top-center"
