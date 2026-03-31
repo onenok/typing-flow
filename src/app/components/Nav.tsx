@@ -11,7 +11,7 @@ export default function Nav() {
 
 
   return (
-    <nav className="site-nav">
+    <nav className="site-nav shadow-lg">
       <div className="logo">Typing Flow</div>
       <div className="nav-list">
         <Link href="/" className="nav-item">

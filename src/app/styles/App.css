@@ -97,6 +97,8 @@ h1 {
   padding-block: .75rem;
   padding-inline: max(1rem, calc(50vw - 720px + 1rem));
   width: 100%;
+  position: sticky;
+  top: 0;
   background-color: #282c34;
 
   .nav-item {
