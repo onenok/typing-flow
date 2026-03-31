@@ -10,7 +10,7 @@ export default function ResultsPage() {
   const { user, loading } = useAuth();
   const [sessions, setSessions] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
-  console.log(user)
+
   useEffect(() => {
     if (user) {
       const fetchData = async () => {
