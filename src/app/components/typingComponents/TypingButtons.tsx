@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useTyping } from "./TypingProvider";
 import { useAuth } from "@/lib/contexts/AuthContext";
 
-export default function TButtons() {
+export default function TypingButtons() {
   const { user } = useAuth();
   const {
     reset,
@@ -11,7 +11,7 @@ export default function TButtons() {
   } = useTyping();
 
   return (
-    <div 
+    <div
       className="text-center grid gap-2.5"
       style={{
         gridTemplateColumns: `repeat(auto-fit, minmax(0, 1fr))`
@@ -39,7 +39,7 @@ export default function TButtons() {
                 href="/auth/login"
                 className="inline-block bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
               >
-                  登入帳戶即可記錄并查看結果
+                登入帳戶即可記錄并查看結果
               </Link>
           )
           :

@@ -32,6 +32,7 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
       </div>
     )
   })
+  
   return (
     <div>
       <p className="text-gray-600 mb-1">{titleN}</p>

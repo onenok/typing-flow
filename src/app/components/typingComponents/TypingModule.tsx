@@ -5,7 +5,8 @@ import { TypingProvider } from "./TypingProvider";
 import TypingDisplay from "./TypingDisplay";
 import TypingInput from "./TypingInput";
 import TypingStats from "./TypingStats";
-import TButtons from "./Buttons";
+import TypingButtons from "./TypingButtons";
+import QuizTimer from "./QuizTimer";
 import "./typingStyle.css";
 
 interface TypingModuleProps {
@@ -29,10 +30,11 @@ export default function TypingModule(
     <TypingProvider initialText={initialText} tMode={tMode} timeoutS={timeoutS}>
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8 gap-4 grid">
         {/* 預設區塊：如果使用者沒有自訂，就顯示這些 */}
+        {!hasChild(children, "timer") && tMode === "quiz" && <QuizTimer />}
         {!hasChild(children, "display") && <TypingDisplay titleN={title} />}
         {!hasChild(children, "input") && <TypingInput />}
         {!hasChild(children, "stats") && <TypingStats />}
-        {!hasChild(children, "reset") && <TButtons />}
+        {!hasChild(children, "reset") && <TypingButtons />}
 
         {/* 使用者自訂內容 */}
         {children}
