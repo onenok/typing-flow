@@ -52,6 +52,8 @@ export function useTypingModule(
     setErrors(0);
     setErrored(false);
     setStartTime(null);
+    setWpm(0);
+    setAccuracy(0);
     setIsComplete(false);
     setDisplayText([]);
     setTimeLeft(timeoutS);
@@ -99,20 +101,22 @@ export function useTypingModule(
   }, [tMode, startTime, isTimerRunning, timeoutS]);
 
   // ==================== calc WPM & Accuracy ====================
-  useEffect(() => {
-    handlingUpdate.current = true;
-    if (!startTime) return;
-    setWpm(Math.round(((charIndex / 5) / ((Date.now() - startTime) / 60000)) * 100) / 100);
-    setAccuracy(charIndex > 0 ? Math.round((charIndex / (charIndex + errors)) * 100) : 0);
+  const calculateWpmAndAccuracy = useCallback(() => {
+    if (!startTime) return { wpm: 0, accuracy: 0 };
 
-    handlingUpdate.current = false;
+    const currentWpm = Math.round(((charIndex / 5) / ((Date.now() - startTime) / 60000)) * 100) / 100;
+    const currentAccuracy = charIndex > 0 
+      ? Math.round((charIndex / (charIndex + errors)) * 100) 
+      : 0;
+
+    return { wpm: currentWpm, accuracy: currentAccuracy };
   }, [startTime, charIndex, errors]);
-
 
   // ==================== Typing handling ====================
   const processInputChar = useCallback((char: string) => {
     if (isComplete) return;
     if (!startTime) setStartTime(Date.now());
+    handlingUpdate.current = true;
 
     const expected = text[charIndex];
     const newDisplay = [...displayText];
@@ -139,6 +143,11 @@ export function useTypingModule(
     }
 
     setDisplayText(newDisplay);
+    const { wpm: newWpm, accuracy: newAccuracy } = calculateWpmAndAccuracy();
+    setWpm(newWpm);
+    setAccuracy(newAccuracy);
+
+    handlingUpdate.current = false;
 
     if (charIndex + 1 >= text.length) {
       console.log("=====End!======")
