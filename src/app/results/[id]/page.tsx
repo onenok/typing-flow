@@ -1,3 +1,4 @@
+// src\app\results\[id]\page.tsx
 "use client";
 
 import { useAuth } from "@/lib/contexts/AuthContext";
