@@ -129,9 +129,8 @@ export default function ResultDetailPage() {
                   return (
                     <span
                       key={index}
-                      className={`inline-block ${
-                        detail?.is_correct ? "text-green-500" : "text-red-500"
-                      }`}
+                      className={`whitespace-pre-wrap inline-block ${detail?.is_correct ? "text-green-500" : "text-red-500"
+                        }`}
                     >
                       {char}
                     </span>

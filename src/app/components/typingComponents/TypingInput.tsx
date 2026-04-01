@@ -32,22 +32,22 @@ export default function TypingInput() {
 
   const typedTextHTML = displayText
     .map(([displayChar, isCorrect], index) => {
-      let typedTextClassName = "inline-block text-lg";
+      let typedTextClassName = "whitespace-pre-wrap inline-block text-lg";
 
       if (isCorrect) {
         typedTextClassName += " text-green-600"; // 已正確完成的字
         return (
-          <pre key={index} className={typedTextClassName}>
+          <span key={index} className={typedTextClassName}>
             {displayChar}
-          </pre>
+          </span>
         );
       }
       else {
         typedTextClassName += " bg-red-100 text-red-600 font-bold"; // 錯字（紅色 + 粗體）
         return (
-          <pre key={index} className={typedTextClassName}>
+          <span key={index} className={typedTextClassName}>
             {displayChar}
-          </pre>
+          </span>
         );
       }
     });
@@ -56,11 +56,11 @@ export default function TypingInput() {
     .slice(charIndex+1, text.length)
     .split('')
     .map((char, index) => {
-      const inputPlaceholderClassName = "inline-block text-lg text-gray-500";
+      const inputPlaceholderClassName = "whitespace-pre-wrap inline-block text-lg text-gray-500";
       return (
-        <pre key={index + charIndex} className={inputPlaceholderClassName}>
+        <span key={index + charIndex} className={inputPlaceholderClassName}>
           {char}
-        </pre>
+        </span>
       )
     });
 

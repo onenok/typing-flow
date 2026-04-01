@@ -38,9 +38,9 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
       <p className="text-gray-600 mb-1">{titleN}</p>
       <div className="typing-text-container relative bg-gray-100 p-4 rounded-lg text-lg min-h-12">
         {text.split("").map((char, index) => (
-          <pre
+          <span
             key={index}
-            className={`inline-block ${index < charIndex
+            className={`whitespace-pre-wrap inline-block ${index < charIndex
               ? "text-green-500 bg-green-100"
               : errored && index === charIndex
                 ? "text-red-500 bg-red-100"
@@ -48,7 +48,7 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
               }`}
           >
             {char}
-          </pre>
+          </span>
         ))}
       </div>
       {/*for display current char and it's 倉頡碼*/}
@@ -56,8 +56,8 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
         (
           <div className="text-gray-500 text-sm mt-2 bg-gray-100 p-2 rounded-lg">
             {/*for display current char*/}
-            <h2 className="bg-blue-300 block w-fit place-self-center text-gray-500 text-[40px] text-center">
-              <pre>{text[charIndex]}</pre>
+            <h2 className="whitespace-pre-wrap bg-blue-300 block w-fit place-self-center text-gray-500 text-[40px] text-center">
+              <span>{text[charIndex]}</span>
             </h2>
             {/*for display 倉頡碼 of current char*/}
             <div className="text-gray-500 flex justify-center">
