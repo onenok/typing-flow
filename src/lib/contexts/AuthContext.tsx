@@ -10,9 +10,9 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<boolean>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<boolean>;
+  signUp: (email: string, password: string, username: string, displayName?: string) => Promise<boolean>;
   signOut: () => Promise<boolean>;
-  updateProfile: (fullName?: string, avatarUrl?: string, bio?: string) => Promise<boolean>;
+  updateProfile: (displayName?: string, avatarUrl?: string, bio?: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -58,14 +58,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
-  const signUp = async (email: string, password: string, fullName?: string): Promise<boolean> => {
+  const signUp = async (email: string, password: string, username: string, displayName?: string): Promise<boolean> => {
     if (!supabase) throw new Error("Supabase client 未初始化");
+
+    // == check if username is valid ==
+    if (!username || username.length < 3) {
+      throw new Error("Username 至少需要 3 個字元");
+    }
+
+    // 檢查格式（只允許小寫英文、數字、下劃線）
+    if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+      throw new Error("Username 只能包含小寫英文、數字和下劃線，且長度 3-20 字元");
+    }
+
+    // 檢查 username 是否已被使用
+    const { data: existingUser, error: checkError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("username", username)
+      .single();
+
+    if (checkError && checkError.code !== "PGRST116") { // PGRST116 = no rows found
+      throw new Error("檢查 username 時發生錯誤");
+    }
+
+    if (existingUser) {
+      throw new Error("這個 username 已經被使用了，請換一個");
+    }
 
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        data: {
+          username: username,
+          display_name: displayName,
+        },
       },
     });
 
@@ -87,18 +115,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateProfile = async (
-    fullName?: string,
+    displayName?: string,
     avatarUrl?: string,
     bio?: string
   ): Promise<boolean> => {
-    if (!supabase || !user?.id) {
-      throw new Error("無法更新：未登入或 Supabase 未初始化");
-    }
+    if (!supabase) throw new Error("無法更新：未登入或 Supabase 未初始化");
+    if (!user?.id) throw new Error("出現錯誤：無法獲取用戶ID, 請嘗試重新登入。");
 
     const { error } = await supabase
       .from("profiles")
       .update({
-        full_name: fullName,
+        full_name: displayName,
         avatar_url: avatarUrl,
         bio: bio,
         updated_at: new Date().toISOString(),

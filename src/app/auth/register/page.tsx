@@ -11,8 +11,9 @@ export default function RegisterPage() {
   const { signUp, user, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [signuping, setSignUping] = useState(false);
+  const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [signUping, setSignUping] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -40,7 +41,7 @@ export default function RegisterPage() {
     setSignUping(true);
     setError("");
     toast.promise(
-      signUp(email, password, fullName),
+      signUp(email, password, username, displayName),
       {
         loading: "註冊中...",
         success: () => {
@@ -65,17 +66,31 @@ export default function RegisterPage() {
         </h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-              全名
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+              用戶名稱(一經設定,將不可更改,類似GitHub)
             </label>
             <input
               type="text"
-              id="fullName"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="text-gray-600 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="請輸入全名"
+              placeholder="請輸入用戶名稱"
               required
+            />
+          </div>
+          
+          <div className="mb-4">
+            <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-2">
+              顯示名稱
+            </label>
+            <input
+              type="text"
+              id="displayName"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="text-gray-600 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="請輸入顯示名稱"
             />
           </div>
 
@@ -117,10 +132,10 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={signuping}
+            disabled={signUping}
             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition disabled:opacity-50"
           >
-            {signuping ? "註冊中..." : "註冊"}
+            {signUping ? "註冊中..." : "註冊"}
           </button>
         </form>
 
