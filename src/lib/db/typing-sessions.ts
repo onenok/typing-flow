@@ -21,7 +21,7 @@ export interface TypingDetail {
   session_id: string;
   char_index: number;
   expected_char: string;
-  typed_char: string;
+  wrong_types: string;
   is_correct: boolean;
   time_ms: number;
   created_at: string;
@@ -40,7 +40,7 @@ export interface UserStats {
   last_session: string | null;
 }
 
-// ==================== 寫入類函數（必須 throw error） ====================
+// ==================== 寫入類函數（must throw error） ====================
 
 // 創建新的打字會話
 export async function createTypingSession(session: {
@@ -74,7 +74,7 @@ export async function createTypingSession(session: {
       message = error.message;
     }
 
-    throw new Error(message);
+    throw new Error(message + error);
   }
 
   if (!data) {
@@ -90,7 +90,7 @@ export async function createTypingDetails(
     session_id: string;
     char_index: number;
     expected_char: string;
-    typed_char: string;
+    wrong_types: string;
     is_correct: boolean;
     time_ms: number;
   }[]
@@ -105,13 +105,13 @@ export async function createTypingDetails(
     .select();
 
   if (error) {
-    let message = "儲存打字細節失敗";
+    let message = "儲存細節記錄失敗";
 
     if (error.code === "23503") {
       message = "找不到對應的打字會話，請確認 session_id 正確";
     }
 
-    throw new Error(message);
+    throw new Error(message + JSON.stringify(error));
   }
 
   return data || [];
@@ -143,7 +143,7 @@ export async function deleteTypingSession(
   return true;
 }
 
-// ==================== 查詢類函數（保持原本返回空值或 null） ====================
+// ==================== 查詢類函數 ====================
 
 export async function getUserTypingSessions(
   userId: string,

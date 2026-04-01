@@ -3,6 +3,11 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { saveTypingDetails, saveTypingSession } from "@/app/typing/actions";
 import { toast } from "sonner";
+import { TypingSession } from "@/lib/db/typing-sessions";
+
+const combineTextAndWrongTypeds = (Text: string[], WrongTypeds: string[], currCharIndex: number): [string, boolean][] => {
+  return Text.flatMap((item, index) => [[item, true], [WrongTypeds[index][0], false]]);
+};
 
 export function useTypingModule(
   initialText: string = "這是一段測試文字，正常來說，你不應該看到它。",
@@ -15,18 +20,20 @@ export function useTypingModule(
 
   const [text, setText] = useState(initialText);
 
-  const [typedText, setTypedText] = useState("");
   const [displayText, setDisplayText] = useState<[string, boolean][]>([]);
 
   const [charIndex, setCharIndex] = useState(0);
   const [displayIndex, setDisplayIndex] = useState(0);
 
   const [startTime, setStartTime] = useState<number | null>(null);
+  const [timeOfEachChar, setTimeOfEachChar] = useState<number[]>(new Array(initialText.length).fill(-1));
+  const [lastTime, setLastTime] = useState<number | null>(null);
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(0);
 
   const [errors, setErrors] = useState(0);
   const [errored, setErrored] = useState(false);
+  const [errorInputs, setErrorInputs] = useState<string[]>(new Array(initialText.length + 1).fill(""));
 
   const [isComplete, setIsComplete] = useState(false);
 
@@ -35,6 +42,9 @@ export function useTypingModule(
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
   const TypingInputRef = useRef<HTMLInputElement>(null);
+  const compositionStartTimeRef = useRef<number | null>(null);
+  const totalStartTimeRef = useRef<number | null>(null);
+
   const isComposing = useRef(false);
   const hasSavedRef = useRef(false);
   const handlingUpdate = useRef(false);
@@ -46,18 +56,22 @@ export function useTypingModule(
   const reset = () => {
     console.log("=====Start!======")
     setText(initialText);
-    setTypedText("");
     setCharIndex(0);
     setDisplayIndex(0);
     setErrors(0);
     setErrored(false);
+    setErrorInputs(new Array(initialText.length + 1).fill(""));
     setStartTime(null);
+    setLastTime(null);
+    setTimeOfEachChar(new Array(initialText.length).fill(-1));
     setWpm(0);
     setAccuracy(0);
     setIsComplete(false);
     setDisplayText([]);
     setTimeLeft(timeoutS);
     setIsTimerRunning(false);
+    compositionStartTimeRef.current = null;
+    totalStartTimeRef.current = null;
     hasSavedRef.current = false;
     handlingUpdate.current = false;
   };
@@ -101,66 +115,90 @@ export function useTypingModule(
   }, [tMode, startTime, isTimerRunning, timeoutS]);
 
   // ==================== calc WPM & Accuracy ====================
-  const calculateWpmAndAccuracy = useCallback(() => {
+  const calculateWpmAndAccuracy = useCallback((startTime: number, charIndex: number, errors: number) => {
     if (!startTime) return { wpm: 0, accuracy: 0 };
 
     const currentWpm = Math.round(((charIndex / 5) / ((Date.now() - startTime) / 60000)) * 100) / 100;
-    const currentAccuracy = charIndex > 0 
-      ? Math.round((charIndex / (charIndex + errors)) * 100) 
+    const currentAccuracy = charIndex > 0
+      ? Math.round((charIndex / (charIndex + errors)) * 100)
       : 0;
 
     return { wpm: currentWpm, accuracy: currentAccuracy };
   }, [startTime, charIndex, errors]);
 
   // ==================== Typing handling ====================
-  const processInputChar = useCallback((char: string) => {
+  const processInputChar = useCallback((char: string, compositeStartTime: number | null = null) => {
     if (isComplete) return;
-    if (!startTime) setStartTime(Date.now());
+    const nowTime = Date.now();
+    const typeStartTime = totalStartTimeRef.current || Date.now();
+    if (!startTime) {
+      setStartTime(typeStartTime);
+      setLastTime(typeStartTime);
+    };
     handlingUpdate.current = true;
 
+    const startTimeUse = startTime || typeStartTime;
+    const lastTimeUse = lastTime || typeStartTime;
     const expected = text[charIndex];
-    const newDisplay = [...displayText];
+    const newTimeOfEachChar = [...timeOfEachChar];
+    const newErrorInputs = [...errorInputs];
+    if (!newErrorInputs[charIndex]) newErrorInputs[charIndex] = "";
+
+    let newErrored = errored;
+    let newErrors = errors;
+    let newCharIndex = charIndex;
 
     if (char === expected) { // Correct ✅
-      newDisplay[displayIndex] = [char, true];
-      setCharIndex(prev => prev + 1);
-      setDisplayIndex(prev => prev + 1);
-      setTypedText(prev => prev + char);
-      setErrored(false);
+      newTimeOfEachChar[newCharIndex] = nowTime - lastTimeUse;
+      newCharIndex += 1;
+      newErrored = false;
+      setLastTime(nowTime);
     }
     else if (char.length === 1) { // Wrong ❌
-      const lastDisplayIndex = displayIndex - 1;
-      const prevCharIsNotWrong = displayText[lastDisplayIndex]?.[1] ?? true;
-
-      if (!prevCharIsNotWrong) {
-        newDisplay[displayIndex - 1] = [char, false];
-      } else {
-        newDisplay[displayIndex] = [char, false];
-        setDisplayIndex(prev => prev + 1);
-      }
-      setErrors(prev => prev + 1);
-      setErrored(true);
+      newErrorInputs[charIndex] = char + newErrorInputs[charIndex];
+      newErrored = true;
+      newErrors += 1;
     }
 
-    setDisplayText(newDisplay);
-    const { wpm: newWpm, accuracy: newAccuracy } = calculateWpmAndAccuracy();
+    console.log(newErrorInputs)
+
+    const newDisplay = combineTextAndWrongTypeds(
+      ["", ...text.split("").slice(0, newCharIndex)],
+      newErrorInputs,
+      newCharIndex
+    )
+    const { wpm: newWpm, accuracy: newAccuracy } = calculateWpmAndAccuracy(
+      startTimeUse, newCharIndex, newErrors
+    );
+
     setWpm(newWpm);
     setAccuracy(newAccuracy);
+    setTimeOfEachChar(newTimeOfEachChar);
+    setDisplayIndex(newDisplay.length);
+    setDisplayText(newDisplay);
+    setErrors(newErrors);
+    setErrored(newErrored);
+    setErrorInputs(newErrorInputs);
+    setCharIndex(newCharIndex);
 
-    handlingUpdate.current = false;
-
-    if (charIndex + 1 >= text.length) {
+    if (newCharIndex >= text.length) {
       console.log("=====End!======")
       setIsComplete(true);
     }
+    handlingUpdate.current = false;
   }, [text, charIndex, startTime, isComplete, displayText, displayIndex]);
 
-  const handleCompositionStart = () => { isComposing.current = true; };
+  const handleCompositionStart = () => {
+    isComposing.current = true;
+    const nowTime = Date.now();
+    compositionStartTimeRef.current = nowTime;
+    if (!totalStartTimeRef.current) totalStartTimeRef.current = nowTime
+  };
   const handleCompositionEnd = (e: React.CompositionEvent<HTMLInputElement>) => {
     isComposing.current = false;
     const composed = e.data || "";
     if (composed) {
-      for (const char of composed) processInputChar(char);
+      for (const char of composed) processInputChar(char, compositionStartTimeRef.current);
     }
     if (TypingInputRef.current) TypingInputRef.current.value = "";
   };
@@ -175,10 +213,10 @@ export function useTypingModule(
 
   // ==================== Finished handling ====================
   useEffect(() => {
-    if (!isComplete || !user?.id || !startTime || loading || hasSavedRef.current || handlingUpdate.current) return;
+    if (!isComplete || !user?.id ||!lastTime || !startTime || loading || hasSavedRef.current || handlingUpdate.current) return;
     hasSavedRef.current = true;
 
-    const durationSeconds = Math.round((Date.now() - startTime) / 1000);
+    const durationSeconds = Math.round((lastTime - startTime) / 1000 * 100) / 100;
 
     const session = {
       user_id: user.id,
@@ -201,6 +239,7 @@ export function useTypingModule(
         loading: "正在儲存打字記錄...",
         success: (result) => {
           if (result) {
+            console.log("打字記錄已成功儲存")
             return "✅ 打字記錄已成功儲存！";
           }
           return "儲存完成";
@@ -210,14 +249,52 @@ export function useTypingModule(
           return "❌ 儲存失敗，請稍後再試: " + err;
         },
       }
-    );
+    ).unwrap().then((result: TypingSession) => {
+      const session_id = result.id;
+      const details = text.split("").map((char, index) => {
+        const expected_char = char;
+        const char_index = index;
+        const wrong_types = errorInputs[index];
+        const is_correct = wrong_types == "" ? true : false;
+        const time_ms = timeOfEachChar[index]
+        return {
+          session_id: session_id,
+          char_index: char_index,
+          expected_char: expected_char,
+          wrong_types: wrong_types,
+          is_correct: is_correct,
+          time_ms: time_ms,
+        }
+      });
+      console.log(details);
+      toast.promise(
+        saveTypingDetails(details),
+        {
+          loading: "正在儲存細節記錄...",
+          success: (result) => {
+            if (result) {
+              console.log("細節記錄已成功儲存")
+              return "✅ 細節記錄已成功儲存！";
+            }
+            return "儲存完成";
+          },
+          error: (err) => {
+            console.error("儲存失敗:", err);
+            return "❌ 儲存失敗，請稍後再試: " + err;
+          },
+        }
+      )
+    })
   }, [
     isComplete,
     user?.id,
     mode,
     text,
     startTime,
+    lastTime,
+    timeOfEachChar,
     charIndex,
+    errorInputs,
     errors,
     wpm,
     accuracy,
@@ -232,7 +309,6 @@ export function useTypingModule(
     timeoutS,
     timeLeft,
     isTimerRunning,
-    typedText,
     charIndex,
     displayIndex,
     errors,
