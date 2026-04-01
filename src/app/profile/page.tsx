@@ -7,16 +7,21 @@ import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import { toast } from "sonner";
 
 export default function ProfilePage() {
-  const { user, loading, updateProfile } = useAuth();
-  const [fullName, setFullName] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const { user, loading, updateProfile, getUserProfiles } = useAuth();
+  const [displayName, setDisplayName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState(undefined);
+  const [newDisplayName, setNewDisplayName] = useState("");
+  const [newAvatarUrl, setNewAvatarUrl] = useState("");
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (user) {
-      setFullName(user.user_metadata?.full_name || "");
-      setAvatarUrl(user.user_metadata?.avatar_url || "");
+      (async () => {
+        const Profiles = await getUserProfiles(user.id);
+        setDisplayName(Profiles.display_name || "");
+        setAvatarUrl(Profiles.avatar_url || undefined);
+      })()
     }
   }, [user]);
 
@@ -25,9 +30,11 @@ export default function ProfilePage() {
     setLoadingUpdate(true);
     setError("");
 
+    if(!avatarUrl|| !displayName) return;
+
 
     toast.promise(
-      updateProfile(fullName, avatarUrl),
+      updateProfile(newDisplayName||displayName, newAvatarUrl||avatarUrl),
       {
         loading: "更新中...",
         success: () => {
@@ -77,7 +84,7 @@ export default function ProfilePage() {
             <div className="text-center mb-8">
               <div className="inline-block mb-4">
                 <img
-                  src={avatarUrl || "/user-avatar.svg"}
+                  src={avatarUrl}
                   alt="Avatar"
                   className="w-24 h-24 rounded-full border-2 border-gray-300"
                 />
@@ -90,15 +97,15 @@ export default function ProfilePage() {
 
             <form onSubmit={handleSubmit}>
               <div className="mb-6">
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-2">
                   全名
                 </label>
                 <input
                   type="text"
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  id="displayName"
+                  value={newDisplayName}
+                  onChange={(e) => setNewDisplayName(e.target.value)}
+                  className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="請輸入全名"
                 />
               </div>
@@ -110,9 +117,9 @@ export default function ProfilePage() {
                 <input
                   type="url"
                   id="avatarUrl"
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={newAvatarUrl}
+                  onChange={(e) => setNewAvatarUrl(e.target.value)}
+                  className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="請輸入頭像圖片網址"
                 />
               </div>

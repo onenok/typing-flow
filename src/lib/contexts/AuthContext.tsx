@@ -12,6 +12,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<boolean>;
   signUp: (email: string, password: string, username: string, displayName?: string) => Promise<boolean>;
   signOut: () => Promise<boolean>;
+  getUserProfiles: (userId: string) => Promise<any>;
   updateProfile: (displayName?: string, avatarUrl?: string, bio?: string) => Promise<boolean>;
 }
 
@@ -114,6 +115,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const getUserProfiles = async (userId: string): Promise<any> => {
+    if (!supabase) throw new Error("Supabase client 未初始化");
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      let message = "無法取得用戶資料";
+      throw new Error(message + error.message);
+    }
+
+    return data;
+  }
+
   const updateProfile = async (
     displayName?: string,
     avatarUrl?: string,
@@ -125,7 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase
       .from("profiles")
       .update({
-        full_name: displayName,
+        display_name: displayName,
         avatar_url: avatarUrl,
         bio: bio,
         updated_at: new Date().toISOString(),
@@ -147,6 +164,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signOut,
+        getUserProfiles,
         updateProfile,
       }}
     >

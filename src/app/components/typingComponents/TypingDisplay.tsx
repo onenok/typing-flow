@@ -32,7 +32,7 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
       </div>
     )
   })
-  
+
   return (
     <div>
       <p className="text-gray-600 mb-1">{titleN}</p>
@@ -63,6 +63,18 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
             <div className="text-gray-500 flex justify-center">
               {currCjHTML}
             </div>
+            {currCjHTML &&
+              (
+                <span className="place-self-end block">
+                  <a className="underline text-[#646cff]"
+                    target="_blank"
+                    href={`https://www.hkcards.com/cj/cj-char-${text[charIndex]}.html`}
+                  >
+                    🔍 在HKcards了解拆字原理
+                  </a>
+                </span>
+              )
+            }
           </div>
         )
       }

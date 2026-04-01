@@ -6,10 +6,16 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export default function Nav() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, getUserProfiles } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [displayName, setDisplayName] = useState("");
 
-
+  if (user) {
+    (async () => {
+      const Profiles = await getUserProfiles(user.id);
+      setDisplayName(Profiles.display_name || "");
+    })()
+  }
   return (
     <nav className="site-nav shadow-lg">
       <div className="logo">Typing Flow</div>
@@ -35,8 +41,8 @@ export default function Nav() {
           </div>
         ) : user ? (
           <div className="nav-list">
-            <Link href="/profile" className="nav-item">
-              {user?.user_metadata?.full_name || user?.email}
+            <Link href="/profile" className="w-80 overflow-hidden whitespace-nowrap">
+              {displayName || user?.email}
             </Link>
             <Link
               href={''}

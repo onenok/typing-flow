@@ -6,6 +6,8 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { fetchTypingSession, fetchTypingDetails } from "@/app/typing/actions";
 import Link from "next/link";
+import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
+import { TypingDetail, TypingSession } from "@/lib/db/typing-sessions";
 
 export const runtime = 'edge';
 
@@ -14,8 +16,8 @@ export default function ResultDetailPage() {
   const params = useParams();
   const sessionId = params.id as string;
 
-  const [session, setSession] = useState<any>(null);
-  const [details, setDetails] = useState<any[]>([]);
+  const [session, setSession] = useState<TypingSession | null>(null);
+  const [details, setDetails] = useState<TypingDetail[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
@@ -23,8 +25,8 @@ export default function ResultDetailPage() {
 
     const fetchData = async () => {
       setLoadingData(true);
-      const sessionData = await fetchTypingSession(sessionId);
-      const detailsData = await fetchTypingDetails(sessionId);
+      const sessionData:TypingSession | null = await fetchTypingSession(sessionId);
+      const detailsData:TypingDetail[] = await fetchTypingDetails(sessionId);
 
       if (sessionData && sessionData.user_id === user.id) {
         setSession(sessionData);
@@ -39,9 +41,7 @@ export default function ResultDetailPage() {
   if (loading || loadingData) {
     return (
       <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">載入中...</p>
-        </div>
+        <LoadingScreen />
       </div>
     );
   }
@@ -83,19 +83,19 @@ export default function ResultDetailPage() {
               <div className="bg-green-50 p-4 rounded-lg text-center">
                 <p className="text-gray-600 text-sm">速度</p>
                 <p className="text-xl font-bold text-green-600">
-                  {Math.round(session.wpm)} WPM
+                  {session.wpm} WPM
                 </p>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg text-center">
                 <p className="text-gray-600 text-sm">準確率</p>
                 <p className="text-xl font-bold text-purple-600">
-                  {Math.round(session.accuracy)}%
+                  {session.accuracy}%
                 </p>
               </div>
               <div className="bg-orange-50 p-4 rounded-lg text-center">
                 <p className="text-gray-600 text-sm">持續時間</p>
                 <p className="text-xl font-bold text-orange-600">
-                  {Math.round(session.duration_seconds)}秒
+                  {session.duration_seconds}秒
                 </p>
               </div>
             </div>
@@ -143,25 +143,35 @@ export default function ResultDetailPage() {
               <h3 className="text-lg font-semibold mb-4 text-gray-800">詳細記錄</h3>
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-gray-50 rounded-lg overflow-hidden">
-                  <thead className="bg-gray-200">
+                  <thead className="bg-gray-400">
                     <tr>
                       <th className="px-4 py-2 text-left">位置</th>
                       <th className="px-4 py-2 text-left">期望字符</th>
-                      <th className="px-4 py-2 text-left">輸入字符</th>
+                      <th className="px-4 py-2 text-left">錯誤輸入</th>
                       <th className="px-4 py-2 text-left">狀態</th>
                     </tr>
                   </thead>
                   <tbody>
                     {details.map((detail) => (
                       <tr key={detail.id} className="border-t">
-                        <td className="px-4 py-2">{detail.char_index + 1}</td>
-                        <td className="px-4 py-2 font-mono">{detail.expected_char}</td>
-                        <td className="px-4 py-2 font-mono">{detail.typed_char}</td>
+                        <td className="px-4 py-2 text-gray-700">{detail.char_index + 1}</td>
+                        <td className="px-4 py-2 text-gray-700">{detail.expected_char}</td>
+                        {
+                          detail.wrong_types == "" ?
+                            <td className="px-4 py-2  text-green-500">
+                              <span className="bg-green-100">輸入正確</span>
+                            </td>
+                            :
+                            <td className="px-4 py-2  text-red-500">
+                              <span className="bg-red-100">
+                                {detail.wrong_types.split("").join(",")}
+                              </span>
+                            </td>
+                        }
                         <td className="px-4 py-2">
                           <span
-                            className={`px-2 py-1 rounded text-white text-sm ${
-                              detail.is_correct ? "bg-green-500" : "bg-red-500"
-                            }`}
+                            className={`px-2 py-1 rounded text-white text-sm ${detail.is_correct ? "bg-green-500" : "bg-red-500"
+                              }`}
                           >
                             {detail.is_correct ? "正確" : "錯誤"}
                           </span>

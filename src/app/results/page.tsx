@@ -25,12 +25,12 @@ export default function ResultsPage() {
       setSessions([]);
       setLoadingData(false);
     }
-  }, [user? user : null, loading]);
+  }, [user ? user : null, loading]);
 
   if (loading || loadingData) {
     return (
       <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
-        <LoadingScreen/>
+        <LoadingScreen />
       </div>
     );
   }
@@ -108,7 +108,8 @@ export default function ResultsPage() {
                 <p className="text-2xl font-bold text-green-600">
                   {Math.round(
                     sessions.reduce((sum, s) => sum + s.wpm, 0) / sessions.length
-                  )} WPM
+                    * 100
+                  ) / 100} WPM
                 </p>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg text-center">
@@ -116,15 +117,14 @@ export default function ResultsPage() {
                 <p className="text-2xl font-bold text-purple-600">
                   {Math.round(
                     sessions.reduce((sum, s) => sum + s.accuracy, 0) / sessions.length
-                  )}%
+                    * 100
+                  ) / 100}%
                 </p>
               </div>
               <div className="bg-orange-50 p-4 rounded-lg text-center">
                 <p className="text-gray-600 text-sm">最佳速度</p>
                 <p className="text-2xl font-bold text-orange-600">
-                  {Math.round(
-                    Math.max(...sessions.map(s => s.wpm))
-                  )} WPM
+                  {Math.max(...sessions.map(s => s.wpm))} WPM
                 </p>
               </div>
             </div>
@@ -137,7 +137,7 @@ export default function ResultsPage() {
 
             <div className="overflow-x-auto">
               <table className="min-w-full bg-gray-50 rounded-lg overflow-hidden">
-                <thead className="bg-gray-200">
+                <thead className="bg-gray-400">
                   <tr>
                     <th className="px-4 py-2 text-left">日期</th>
                     <th className="px-4 py-2 text-left">模式</th>
@@ -150,7 +150,7 @@ export default function ResultsPage() {
                 <tbody>
                   {sessions.map((session) => (
                     <tr key={session.id} className="border-t">
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2 text-gray-700">
                         {new Date(session.created_at).toLocaleDateString("zh-TW")}
                       </td>
                       <td className="px-4 py-2">
@@ -162,12 +162,12 @@ export default function ResultsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-2 font-bold text-blue-600">
-                        {Math.round(session.wpm)}
+                        {session.wpm}
                       </td>
                       <td className="px-4 py-2 font-bold text-green-600">
-                        {Math.round(session.accuracy)}
+                        {session.accuracy}
                       </td>
-                      <td className="px-4 py-2">{Math.round(session.duration_seconds)}</td>
+                      <td className="px-4 py-2 text-gray-700">{session.duration_seconds}</td>
                       <td className="px-4 py-2">
                         <Link
                           href={`/results/${session.id}`}

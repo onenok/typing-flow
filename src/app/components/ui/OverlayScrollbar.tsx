@@ -16,8 +16,6 @@ export default function OverlayScrollbar({
     <OverlayScrollbarsComponent
       options={{
         scrollbars: {
-          autoHide: "scroll",
-          autoHideDelay: 800,
           theme: "os-theme-dark",
         },
       }}
