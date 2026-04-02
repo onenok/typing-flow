@@ -5,14 +5,25 @@ import React, { createContext, useContext, useEffect, useState, useMemo } from "
 import { User, Session } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 
+interface Profile {
+  id: string;
+  display_name?: string;
+  username: string;
+  avatar_url?: string;
+  bio?: string;
+  updated_at: string;
+}
+
 interface AuthContextType {
   user: User | null;
+
+  profile: Profile | null;
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<boolean>;
   signUp: (email: string, password: string, username: string, displayName?: string) => Promise<boolean>;
   signOut: () => Promise<boolean>;
-  getUserProfiles: (userId: string) => Promise<any>;
+  //getUserProfiles: (userId: string) => Promise<any>;
   updateProfile: (displayName?: string, avatarUrl?: string, bio?: string) => Promise<boolean>;
 }
 
@@ -22,24 +33,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 使用 useMemo 確保 client 只建立一次
   const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // 獲取 session + profile
+  const fetchProfile = async (userId: string) => {
+    if (!supabase) return;
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("獲取 profile 失敗:", error);
+      return null;
+    }
+    return data;
+  };
 
   useEffect(() => {
     if (!supabase) return; // 防呆，雖然在 client 應該永遠有
     // 獲取初始會話
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+
+      if (session?.user) {
+        const profileData = await fetchProfile(session.user.id);
+        setProfile(profileData);
+      }
+
       setLoading(false);
     });
 
     // 監聽認證狀態變化
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+
+      if (session?.user) {
+        const profileData = await fetchProfile(session.user.id);
+        setProfile(profileData);
+      } else {
+        setProfile(null);
+      }
+
       setLoading(false);
     });
 
@@ -115,21 +157,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
-  const getUserProfiles = async (userId: string): Promise<any> => {
-    if (!supabase) throw new Error("Supabase client 未初始化");
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-
-    if (error) {
-      let message = "無法取得用戶資料";
-      throw new Error(message + error.message);
+  /* 
+    const get User Pro files = async (userId: string): Promise<any> => {
+      if (!supabase) throw new Error("Supabase client 未初始化");
+      const { data, error } = await supabase
+        .from("pro files")
+        .select("*")
+        .eq("id", userId)
+        .single();
+  
+      if (error) {
+        let message = "無法取得用戶資料";
+        throw new Error(message + error.message);
+      }
+  
+      return data;
     }
-
-    return data;
-  }
+  */
 
   const updateProfile = async (
     displayName?: string,
@@ -159,12 +203,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        profile,
         session,
         loading,
         signIn,
         signUp,
         signOut,
-        getUserProfiles,
+        //getUserProfiles,
         updateProfile,
       }}
     >

@@ -6,16 +6,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export default function Nav() {
-  const { user, loading, signOut, getUserProfiles } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [displayName, setDisplayName] = useState("");
 
-  if (user) {
-    (async () => {
-      const Profiles = await getUserProfiles(user.id);
-      setDisplayName(Profiles.display_name || "");
-    })()
-  }
   return (
     <nav className="site-nav shadow-lg max-w-dvw">
       <div className="logo whitespace-nowrap">Typing Flow</div>
@@ -42,7 +35,7 @@ export default function Nav() {
         ) : user ? (
           <div className="gap-6 flex w-full">
             <Link href="/profile" className="w-full text-ellipsis overflow-hidden whitespace-nowrap text-right">
-              {displayName || user?.email}
+              {profile?.display_name || profile?.username || user.email || "用戶"}
             </Link>
             <Link
               href={''}
@@ -78,6 +71,25 @@ export default function Nav() {
           </div>
         )}
       </div>
+      <div className="block md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <div className="font-mono text-2xl">{isMenuOpen ? "X" : "≡"}</div>
+      </div>
+      {isMenuOpen && (
+        <div className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-4">
+          <Link href="/" className="nav-item" onClick={() => setIsMenuOpen(false)}>
+            首頁
+          </Link>
+          <Link href="/practice" className="nav-item" onClick={() => setIsMenuOpen(false)}>
+            練習
+          </Link>
+          <Link href="/quiz" className="nav-item" onClick={() => setIsMenuOpen(false)}>
+            測驗
+          </Link>
+          <Link href="/results" className="nav-item" onClick={() => setIsMenuOpen(false)}>
+            結果
+          </Link>
+        </div>
+      )}
     </nav>
   );
 }

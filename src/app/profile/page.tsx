@@ -7,34 +7,34 @@ import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import { toast } from "sonner";
 
 export default function ProfilePage() {
-  const { user, loading, updateProfile, getUserProfiles } = useAuth();
+  const { user, profile, loading, updateProfile, /*getUserProfiles*/ } = useAuth();
   const [displayName, setDisplayName] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState(undefined);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const [newDisplayName, setNewDisplayName] = useState("");
   const [newAvatarUrl, setNewAvatarUrl] = useState("");
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (user) {
-      (async () => {
-        const Profiles = await getUserProfiles(user.id);
-        setDisplayName(Profiles.display_name || "");
-        setAvatarUrl(Profiles.avatar_url || undefined);
-      })()
+    if (profile) {
+      setDisplayName(profile.display_name || "");
+      setAvatarUrl(profile.avatar_url || undefined);
     }
-  }, [user]);
+  }, [profile]);
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setLoadingUpdate(true);
     setError("");
 
-    if(!avatarUrl|| !displayName) return;
-
+    if (!avatarUrl || !displayName) {
+      setLoadingUpdate(false);
+      toast.error("無法更新：缺少必要的用戶資料，請重新登入後再試");
+      return;
+    }
 
     toast.promise(
-      updateProfile(newDisplayName||displayName, newAvatarUrl||avatarUrl),
+      updateProfile(newDisplayName || displayName, newAvatarUrl || avatarUrl),
       {
         loading: "更新中...",
         success: () => {
@@ -90,7 +90,7 @@ export default function ProfilePage() {
                 />
               </div>
               <h2 className="text-2xl font-semibold text-gray-800">
-                {user.user_metadata?.full_name || user.email}
+                {displayName || user.email}
               </h2>
               <p className="text-gray-600 whitespace-normal wrap-break-word">{user.email}</p>
             </div>
