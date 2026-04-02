@@ -4,6 +4,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { json } from "stream/consumers";
 
 interface Profile {
   id: string;
@@ -23,11 +24,13 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<boolean>;
   signUp: (email: string, password: string, username: string, displayName?: string) => Promise<boolean>;
   signOut: () => Promise<boolean>;
+  withTimeout: <T>(promise: Promise<T>, timeoutMs?: number) => Promise<T>;
   //getUserProfiles: (userId: string) => Promise<any>;
   updateProfile: (displayName?: string, avatarUrl?: string, bio?: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 使用 useMemo 確保 client 只建立一次
@@ -37,9 +40,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const withTimeout = <T,>(
+    promise: Promise<T>,
+    timeoutMs: number = 10000 // 10s
+  ): Promise<T> => {
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error(`請求超時(超過 ${timeoutMs / 1000} 秒)，請嘗試重新加載頁面或稍後再試。`));
+      }, timeoutMs);
+    });
+
+    return Promise.race([promise, timeoutPromise]);
+  };
+
   // 獲取 session + profile
-  const fetchProfile = async (userId: string) => {
-    if (!supabase) return;
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
+    if (!supabase) return null;
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
@@ -180,6 +196,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     avatarUrl?: string,
     bio?: string
   ): Promise<boolean> => {
+    console.log("=== updateProfile 開始 ===");
+    console.log("supabase 存在?", !!supabase);
+    console.log("user?.id 存在?", !!user?.id);
+
     if (!supabase) throw new Error("無法更新：未登入或 Supabase 未初始化");
     if (!user?.id) throw new Error("出現錯誤：無法獲取用戶ID, 請嘗試重新登入。");
 
@@ -194,8 +214,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq("id", user.id);
 
     if (error) {
+      console.error("update 發生錯誤:", error);
       throw new Error(error.message || "更新個人資料失敗");
     }
+
+    console.log("update 成功，開始 fetchProfile...");
+    const latestProfile = await fetchProfile(user.id);
+    console.log("fetchProfile 結果:", latestProfile);
+    setProfile(latestProfile);
+    console.log("=== updateProfile 完成 ===");
+
     return true;
   };
 
@@ -209,6 +237,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signOut,
+        withTimeout,
         //getUserProfiles,
         updateProfile,
       }}

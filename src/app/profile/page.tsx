@@ -7,7 +7,7 @@ import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import { toast } from "sonner";
 
 export default function ProfilePage() {
-  const { user, profile, loading, updateProfile, /*getUserProfiles*/ } = useAuth();
+  const { user, profile, loading, updateProfile, withTimeout, /*getUserProfiles*/ } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const [newDisplayName, setNewDisplayName] = useState("");
@@ -34,7 +34,7 @@ export default function ProfilePage() {
     }
 
     toast.promise(
-      updateProfile(newDisplayName || displayName, newAvatarUrl || avatarUrl),
+      withTimeout(updateProfile(newDisplayName || displayName, newAvatarUrl || avatarUrl), 5000),
       {
         loading: "更新中...",
         success: () => {
