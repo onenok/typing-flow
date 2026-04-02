@@ -155,7 +155,7 @@ export default function ResultsPage() {
                       </td>
                       <td className="px-4 py-2">
                         <span
-                          className={`px-2 py-1 rounded text-white text-sm ${session.mode === "practice" ? "bg-blue-500" : "bg-green-500"
+                          className={`whitespace-nowrap px-2 py-1 rounded text-white text-sm ${session.mode === "practice" ? "bg-blue-500" : "bg-green-500"
                             }`}
                         >
                           {session.mode === "practice" ? "練習" : "測驗"}
@@ -171,7 +171,7 @@ export default function ResultsPage() {
                       <td className="px-4 py-2">
                         <Link
                           href={`/results/${session.id}`}
-                          className="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 transition"
+                          className="whitespace-nowrap bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 transition"
                         >
                           查看詳情
                         </Link>

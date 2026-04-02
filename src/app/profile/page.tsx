@@ -92,7 +92,7 @@ export default function ProfilePage() {
               <h2 className="text-2xl font-semibold text-gray-800">
                 {user.user_metadata?.full_name || user.email}
               </h2>
-              <p className="text-gray-600">{user.email}</p>
+              <p className="text-gray-600 whitespace-normal wrap-break-word">{user.email}</p>
             </div>
 
             <form onSubmit={handleSubmit}>

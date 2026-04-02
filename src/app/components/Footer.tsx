@@ -4,7 +4,7 @@ import '@/app/styles/App.css';
 
 export default function Footer() {
   return (
-    <footer className="site-footer">
+    <footer className="site-footer max-w-dvw">
       <nav className="footer-nav">
         <Link href="/privacy-policy">Privacy Policy</Link>
         <span className="sep"> | </span>

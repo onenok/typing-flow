@@ -17,9 +17,9 @@ export default function Nav() {
     })()
   }
   return (
-    <nav className="site-nav shadow-lg">
-      <div className="logo">Typing Flow</div>
-      <div className="nav-list">
+    <nav className="site-nav shadow-lg max-w-dvw">
+      <div className="logo whitespace-nowrap">Typing Flow</div>
+      <div className="gap-6 flex whitespace-nowrap max-sm:hidden">
         <Link href="/" className="nav-item">
           首頁
         </Link>
@@ -34,14 +34,14 @@ export default function Nav() {
         </Link>
       </div>
 
-      <div className="nav-rightest">
+      <div className="nav-rightest w-full">
         {loading ? (
-          <div className="nav-list">
-            <div className="nav-item">載入中...</div>
+          <div className="gap-6 flexex place-self-end w-full">
+            <div className="nav-item block justify-self-end w-full text-right">載入中...</div>
           </div>
         ) : user ? (
-          <div className="nav-list">
-            <Link href="/profile" className="w-80 overflow-hidden whitespace-nowrap">
+          <div className="gap-6 flex w-full">
+            <Link href="/profile" className="w-full text-ellipsis overflow-hidden whitespace-nowrap text-right">
               {displayName || user?.email}
             </Link>
             <Link
@@ -62,13 +62,13 @@ export default function Nav() {
                   }
                 )
               }}
-              className="nav-item"
+              className="nav-item whitespace-nowrap"
             >
               登出
             </Link>
           </div>
         ) : (
-          <div className="nav-list">
+          <div className="gap-6 flex w-full justify-end text-right whitespace-nowrap">
             <Link href="/auth/login" className="nav-item">
               登入
             </Link>
