@@ -33,8 +33,14 @@ export default function ProfilePage() {
       return;
     }
 
+    if (newDisplayName.trim() === "" && newAvatarUrl?.trim() === "") {
+      setLoadingUpdate(false);
+      toast.error("請至少修改一項資料後再提交");
+      return;
+    }
+
     toast.promise(
-      withTimeout(updateProfile(newDisplayName || displayName, newAvatarUrl || avatarUrl), 5000),
+      updateProfile(newDisplayName || displayName, newAvatarUrl || avatarUrl),
       {
         loading: "更新中...",
         success: () => {
@@ -59,7 +65,7 @@ export default function ProfilePage() {
     )
   }
 
-  if (!user) {
+  if (!user || !profile) {
     return (
       <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
@@ -89,10 +95,18 @@ export default function ProfilePage() {
                   className="w-24 h-24 rounded-full border-2 border-gray-300"
                 />
               </div>
-              <h2 className="text-2xl font-semibold text-gray-800">
+              {/* Display Name */}
+              <h2 className="text-2xl font-semibold text-gray-800 whitespace-normal wrap-break-word">
                 {displayName || user.email}
               </h2>
-              <p className="text-gray-600 whitespace-normal wrap-break-word">{user.email}</p>
+              {/* Username */}
+              <p className="text-gray-500">
+                @{profile.username}
+              </p>
+              {/* Email */}
+              <p className="text-gray-600 whitespace-normal wrap-break-word">
+                {user.email}
+              </p>
             </div>
 
             <form onSubmit={handleSubmit}>

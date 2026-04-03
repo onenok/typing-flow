@@ -8,6 +8,7 @@ import { fetchTypingSession, fetchTypingDetails } from "@/app/typing/actions";
 import Link from "next/link";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import { TypingDetail, TypingSession } from "@/lib/db/typing-sessions";
+import React from "react";
 
 export const runtime = 'edge';
 
@@ -25,8 +26,8 @@ export default function ResultDetailPage() {
 
     const fetchData = async () => {
       setLoadingData(true);
-      const sessionData:TypingSession | null = await fetchTypingSession(sessionId);
-      const detailsData:TypingDetail[] = await fetchTypingDetails(sessionId);
+      const sessionData: TypingSession | null = await fetchTypingSession(sessionId);
+      const detailsData: TypingDetail[] = await fetchTypingDetails(sessionId);
 
       if (sessionData && sessionData.user_id === user.id) {
         setSession(sessionData);
@@ -80,6 +81,12 @@ export default function ResultDetailPage() {
                   {session.mode === "practice" ? "練習" : "測驗"}
                 </p>
               </div>
+              <div className="bg-orange-50 p-4 rounded-lg text-center">
+                <p className="text-gray-600 text-sm">持續時間</p>
+                <p className="text-xl font-bold text-orange-600">
+                  {session.duration_seconds}秒
+                </p>
+              </div>
               <div className="bg-green-50 p-4 rounded-lg text-center">
                 <p className="text-gray-600 text-sm">速度</p>
                 <p className="text-xl font-bold text-green-600">
@@ -92,19 +99,19 @@ export default function ResultDetailPage() {
                   {session.accuracy}%
                 </p>
               </div>
-              <div className="bg-orange-50 p-4 rounded-lg text-center">
-                <p className="text-gray-600 text-sm">持續時間</p>
-                <p className="text-xl font-bold text-orange-600">
-                  {session.duration_seconds}秒
-                </p>
-              </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="bg-gray-50 p-4 rounded-lg text-center">
                 <p className="text-gray-600 text-sm">總字符數</p>
                 <p className="text-2xl font-bold text-gray-800">
                   {session.total_chars}
+                </p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg text-center">
+                <p className="text-gray-600 text-sm">已輸入字符</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {session.typed_chars||"N/A"}
                 </p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg text-center">
@@ -129,8 +136,12 @@ export default function ResultDetailPage() {
                   return (
                     <span
                       key={index}
-                      className={`whitespace-pre-wrap inline-block ${detail?.is_correct ? "text-green-500" : "text-red-500"
-                        }`}
+                      className={
+                        `
+                        whitespace-pre-wrap inline-block 
+                        ${(detail?.isTyped === false) ? "text-gray-500" : detail?.is_correct ? "text-green-500" : "text-red-500"}
+                        `
+                      }
                     >
                       {char}
                     </span>
@@ -142,12 +153,13 @@ export default function ResultDetailPage() {
             <div className="mb-8">
               <h3 className="text-lg font-semibold mb-4 text-gray-800">詳細記錄</h3>
               <div className="overflow-x-auto">
-                <table className="min-w-full bg-gray-50 rounded-lg overflow-hidden">
+                <table className="min-w-full bg-gray-50 text-nowrap rounded-lg overflow-hidden">
                   <thead className="bg-gray-400">
                     <tr>
                       <th className="px-4 py-2 text-left">位置</th>
                       <th className="px-4 py-2 text-left">期望字符</th>
-                      <th className="px-4 py-2 text-left">錯誤輸入</th>
+                      <th className="px-4 py-2 text-left">輸入字符</th>
+                      <th className="px-4 py-2 text-left">輸入用時</th>
                       <th className="px-4 py-2 text-left">狀態</th>
                     </tr>
                   </thead>
@@ -155,25 +167,50 @@ export default function ResultDetailPage() {
                     {details.map((detail) => (
                       <tr key={detail.id} className="border-t">
                         <td className="px-4 py-2 text-gray-700">{detail.char_index + 1}</td>
-                        <td className="px-4 py-2 text-gray-700">{detail.expected_char}</td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-pre">
+                          <span className="bg-gray-100">{detail.expected_char}</span>
+                        </td>
                         {
-                          detail.wrong_types == "" ?
-                            <td className="px-4 py-2  text-green-500">
-                              <span className="bg-green-100">輸入正確</span>
+                          (detail.isTyped === false) ?
+                            <td className="px-4 py-2 bg-gray-100">
+                              <span className="text-gray-500">未輸入</span>
                             </td>
                             :
-                            <td className="px-4 py-2  text-red-500">
-                              <span className="bg-red-100">
-                                {detail.wrong_types.split("").join(",")}
-                              </span>
-                            </td>
+                            detail.wrong_types == "" ?
+                              <td className="px-4 py-2">
+                                <span className="text-green-500 bg-green-100 whitespace-pre">{detail.expected_char || "N/A"}</span>
+                              </td>
+                              :
+                              <td className="px-4 py-2 text-wrap wrap-break-word">
+                                {detail.wrong_types.split("").map((wt, index) => {
+                                  return (
+                                  <React.Fragment key={index}>
+                                  <span className="bg-red-100 text-red-500 whitespace-pre" key={index}>
+                                    {wt}
+                                  </span>
+                                  {index < detail.wrong_types.length - 1 && <span className="text-red-400">, </span>}
+                                  </React.Fragment>
+                                  )
+                                })}
+                              </td>
                         }
                         <td className="px-4 py-2">
+                          <span className="px-2 py-1 rounded text-nowrap text-gray-700 text-sm">
+                            {
+                            (detail.isTyped === false) ?
+                              "未輸入"
+                            :
+                            `${detail.time_ms} ms`
+                            }
+                          </span>
+                        </td>
+                        <td className="px-4 py-2">
                           <span
-                            className={`px-2 py-1 rounded text-white text-sm ${detail.is_correct ? "bg-green-500" : "bg-red-500"
+                            className={`px-2 py-1 rounded text-nowrap text-white text-sm ${
+                              detail.isTyped === false ? "bg-gray-500" : detail.is_correct ? "bg-green-500" : "bg-red-500"
                               }`}
                           >
-                            {detail.is_correct ? "正確" : "錯誤"}
+                            {detail.isTyped === false ? "未輸入" : detail.is_correct ? "正確" : "錯誤"}
                           </span>
                         </td>
                       </tr>
@@ -192,10 +229,10 @@ export default function ResultDetailPage() {
               返回結果列表
             </Link>
             <Link
-              href="/practice"
+              href={`/${session.mode}`}
               className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition"
             >
-              再次練習
+              再次{session.mode === "practice" ? "練習" : "測驗"}
             </Link>
           </div>
         </div>

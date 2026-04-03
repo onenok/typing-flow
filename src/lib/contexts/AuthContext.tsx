@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const withTimeout = <T,>(
     promise: Promise<T>,
-    timeoutMs: number = 10000 // 10s
+    timeoutMs: number = 5000 // 5s
   ): Promise<T> => {
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => {
@@ -68,109 +68,143 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     return data;
   };
+  const SetSessionAndProfile = async (session: Session | null) => {
+    setSession(session);
+    setUser(session?.user ?? null);
+
+    if (session?.user) {
+      const profileData = await fetchProfile(session.user.id);
+      setProfile(profileData);
+    } else {
+      setProfile(null);
+    }
+
+    setLoading(false);
+  };
 
   useEffect(() => {
-    if (!supabase) return; // 防呆，雖然在 client 應該永遠有
+    if (!supabase) {
+      console.error("Supabase client 未初始化");
+      return
+    }; // 防呆，雖然在 client 應該永遠有
+    let isMounted = true; // 防止在 component unmounted 後更新 state
+
     // 獲取初始會話
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        const profileData = await fetchProfile(session.user.id);
-        setProfile(profileData);
-      }
-
-      setLoading(false);
-    });
+    supabase.auth.getSession().then(async ({ data: { session } }) => await SetSessionAndProfile(session));
 
     // 監聽認證狀態變化
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        const profileData = await fetchProfile(session.user.id);
-        setProfile(profileData);
-      } else {
-        setProfile(null);
-      }
-
-      setLoading(false);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (isMounted) await SetSessionAndProfile(session);
     });
 
-    return () => subscription.unsubscribe();
+    // 監聽 visibility change 以刷新 session（確保在用戶回到頁面時 session 是最新的）
+    const SupabaseRefreshSessionWithProfile = async () => {
+      console.log("頁面 visibility changed:", document.visibilityState);
+      if (document.visibilityState !== "visible" || !isMounted) {
+        return; // only refresh when tab is active
+      }
+      console.log("正在刷新 session...");
+      supabase.auth.refreshSession().then(async ({ data: { session }, error }) => {
+        if (error) {
+          console.warn("刷新 session 失敗，可能是因為沒有有效的 refresh token:", error);
+          return;
+        }
+        if (session && isMounted) {
+          console.log("Session 刷新成功，更新 session 和 profile");
+          SetSessionAndProfile(session);
+        }
+      });
+    }
+    document.addEventListener("visibilitychange", async (event) => {
+      await SupabaseRefreshSessionWithProfile();
+    });
+
+    return () => {
+      console.log("AuthProvider unmounted，正在清理訂閱和事件監聽器...");
+      isMounted = false;
+      document.removeEventListener("visibilitychange", async (event) => {
+        await SupabaseRefreshSessionWithProfile();
+      });
+      subscription.unsubscribe()
+    };
   }, [supabase]);
 
   // ==================== 改成 throw error 的模式 ====================
 
   const signIn = async (email: string, password: string): Promise<boolean> => {
-    if (!supabase) throw new Error("Supabase client 未初始化");
+    const signInPromise = async () => {
+      if (!supabase) throw new Error("Supabase client 未初始化");
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      throw new Error(error.message || "登入失敗");
+      if (error) {
+        throw new Error(error.message || "登入失敗");
+      }
+      return true;
     }
-    return true;
+    return withTimeout(signInPromise(), 5000);
   };
 
   const signUp = async (email: string, password: string, username: string, displayName?: string): Promise<boolean> => {
-    if (!supabase) throw new Error("Supabase client 未初始化");
+    const signUpPromise = async () => {
+      if (!supabase) throw new Error("Supabase client 未初始化");
 
-    // == check if username is valid ==
-    if (!username || username.length < 3) {
-      throw new Error("Username 至少需要 3 個字元");
-    }
+      // == check if username is valid ==
+      if (!username || username.length < 3) {
+        throw new Error("Username 至少需要 3 個字元");
+      }
 
-    // 檢查格式（只允許小寫英文、數字、下劃線）
-    if (!/^[a-z0-9_]{3,20}$/.test(username)) {
-      throw new Error("Username 只能包含小寫英文、數字和下劃線，且長度 3-20 字元");
-    }
+      // 檢查格式（只允許小寫英文、數字、下劃線）
+      if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+        throw new Error("Username 只能包含小寫英文、數字和下劃線，且長度 3-20 字元");
+      }
 
-    // 檢查 username 是否已被使用
-    const { data: existingUser, error: checkError } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("username", username)
-      .single();
+      // 檢查 username 是否已被使用
+      const { data: existingUser, error: checkError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("username", username)
+        .single();
 
-    if (checkError && checkError.code !== "PGRST116") { // PGRST116 = no rows found
-      throw new Error("檢查 username 時發生錯誤");
-    }
+      if (checkError && checkError.code !== "PGRST116") { // PGRST116 = no rows found
+        throw new Error("檢查 username 時發生錯誤");
+      }
 
-    if (existingUser) {
-      throw new Error("這個 username 已經被使用了，請換一個");
-    }
+      if (existingUser) {
+        throw new Error("這個 username 已經被使用了，請換一個");
+      }
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username: username,
-          display_name: displayName,
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username: username,
+            display_name: displayName,
+          },
         },
-      },
-    });
+      });
 
-    if (error) {
-      throw new Error(error.message || "註冊失敗");
-    }
-    return true;
+      if (error) {
+        throw new Error(error.message || "註冊失敗");
+      }
+      return true;
+    };
+    return withTimeout(signUpPromise(), 5000);
   };
 
   const signOut = async (): Promise<boolean> => {
-    if (!supabase) throw new Error("Supabase client 未初始化");
+    const signOutPromise = async () => {
+      if (!supabase) throw new Error("Supabase client 未初始化");
 
-    const { error } = await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
 
-    if (error) {
-      throw new Error(error.message || "登出失敗");
+      if (error) {
+        throw new Error(error.message || "登出失敗");
+      }
+      return true;
     }
-    return true;
+    return withTimeout(signOutPromise(), 5000);
   };
 
   /* 
@@ -181,12 +215,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .select("*")
         .eq("id", userId)
         .single();
-  
+   
       if (error) {
         let message = "無法取得用戶資料";
         throw new Error(message + error.message);
       }
-  
+   
       return data;
     }
   */
@@ -196,35 +230,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     avatarUrl?: string,
     bio?: string
   ): Promise<boolean> => {
-    console.log("=== updateProfile 開始 ===");
-    console.log("supabase 存在?", !!supabase);
-    console.log("user?.id 存在?", !!user?.id);
+    const updateProfilePromise = async () => {
+      if (!supabase) throw new Error("無法更新：未登入或 Supabase 未初始化");
+      if (!user?.id) throw new Error("出現錯誤：無法獲取用戶ID, 請嘗試重新登入。");
 
-    if (!supabase) throw new Error("無法更新：未登入或 Supabase 未初始化");
-    if (!user?.id) throw new Error("出現錯誤：無法獲取用戶ID, 請嘗試重新登入。");
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          display_name: displayName,
+          avatar_url: avatarUrl,
+          bio: bio,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user.id);
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        display_name: displayName,
-        avatar_url: avatarUrl,
-        bio: bio,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", user.id);
+      if (error) {
+        console.error("update 發生錯誤:", error);
+        throw new Error(error.message || "更新個人資料失敗");
+      }
 
-    if (error) {
-      console.error("update 發生錯誤:", error);
-      throw new Error(error.message || "更新個人資料失敗");
-    }
+      const latestProfile = await fetchProfile(user.id);
+      setProfile(latestProfile);
 
-    console.log("update 成功，開始 fetchProfile...");
-    const latestProfile = await fetchProfile(user.id);
-    console.log("fetchProfile 結果:", latestProfile);
-    setProfile(latestProfile);
-    console.log("=== updateProfile 完成 ===");
-
-    return true;
+      return true;
+    };
+    return withTimeout(updateProfilePromise(), 5000);
   };
 
   return (

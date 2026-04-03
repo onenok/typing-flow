@@ -5,8 +5,8 @@ import { saveTypingDetails, saveTypingSession } from "@/app/typing/actions";
 import { toast } from "sonner";
 import { TypingSession } from "@/lib/db/typing-sessions";
 
-const combineTextAndWrongTypeds = (Text: string[], WrongTypeds: string[], currCharIndex: number): [string, boolean][] => {
-  return Text.flatMap((item, index) => [[item, true], [WrongTypeds[index][0], false]]);
+const combineTextAndWrongTypeds = (Text: string[], WrongTypeds: string[], currCharIndex: number): [string, number][] => { // 0: red, 1: green, 2: yellow
+  return Text.flatMap((item, index) => [[item, WrongTypeds[index-1]?.[0] ? 2 : 1], [WrongTypeds[index][0], 0]]);
 };
 
 export function useTypingModule(
@@ -20,7 +20,7 @@ export function useTypingModule(
 
   const [text, setText] = useState(initialText);
 
-  const [displayText, setDisplayText] = useState<[string, boolean][]>([]);
+  const [displayText, setDisplayText] = useState<[string, number][]>([]);
 
   const [charIndex, setCharIndex] = useState(0);
   const [displayIndex, setDisplayIndex] = useState(0);
@@ -31,6 +31,7 @@ export function useTypingModule(
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(0);
 
+  const [correctChars, setCorrectChars] = useState(0);
   const [errors, setErrors] = useState(0);
   const [errored, setErrored] = useState(false);
   const [errorInputs, setErrorInputs] = useState<string[]>(new Array(initialText.length + 1).fill(""));
@@ -48,6 +49,7 @@ export function useTypingModule(
   const isComposing = useRef(false);
   const hasSavedRef = useRef(false);
   const handlingUpdate = useRef(false);
+  const isTimerRunningRef = useRef(isTimerRunning);
 
   // for debug
   useEffect(() => { console.log("=====Start!======") }, []);
@@ -106,14 +108,6 @@ export function useTypingModule(
     return () => clearInterval(timer);
   }, [tMode, isTimerRunning, isComplete]);
 
-  // start timer when user start typing（quiz mode）
-  useEffect(() => {
-    if (tMode === "quiz" && startTime && !isTimerRunning) {
-      setTimeLeft(timeoutS);
-      setIsTimerRunning(true);
-    }
-  }, [tMode, startTime, isTimerRunning, timeoutS]);
-
   // ==================== calc WPM & Accuracy ====================
   const calculateWpmAndAccuracy = useCallback((startTime: number, charIndex: number, errors: number) => {
     if (!startTime) return { wpm: 0, accuracy: 0 };
@@ -132,6 +126,8 @@ export function useTypingModule(
     const nowTime = Date.now();
     const typeStartTime = totalStartTimeRef.current || Date.now();
     if (!startTime) {
+      setTimeLeft(timeoutS);
+      setIsTimerRunning(true);
       setStartTime(typeStartTime);
       setLastTime(typeStartTime);
     };
@@ -149,9 +145,13 @@ export function useTypingModule(
     let newCharIndex = charIndex;
 
     if (char === expected) { // Correct ✅
-      newTimeOfEachChar[newCharIndex] = nowTime - lastTimeUse;
-      newCharIndex += 1;
+      newTimeOfEachChar[charIndex] = nowTime - lastTimeUse;
       newErrored = false;
+      setCorrectChars((prev) => {
+        if (newErrorInputs[charIndex]!== "") return prev; // already has error input, don't count as correct char
+        return prev + 1;
+      });
+      newCharIndex += 1;
       setLastTime(nowTime);
     }
     else if (char.length === 1) { // Wrong ❌
@@ -225,7 +225,8 @@ export function useTypingModule(
       text_content: text,
       duration_seconds: durationSeconds,
       total_chars: text.length,
-      correct_chars: charIndex,
+      typed_chars: charIndex,
+      correct_chars: correctChars,
       errors: errors,
       wpm: wpm,
       accuracy: accuracy,
@@ -254,6 +255,7 @@ export function useTypingModule(
       const details = text.split("").map((char, index) => {
         const expected_char = char;
         const char_index = index;
+        const isTyped = index < charIndex;
         const wrong_types = errorInputs[index];
         const is_correct = wrong_types == "" ? true : false;
         const time_ms = timeOfEachChar[index]
@@ -261,6 +263,7 @@ export function useTypingModule(
           session_id: session_id,
           char_index: char_index,
           expected_char: expected_char,
+          isTyped: isTyped,
           wrong_types: wrong_types,
           is_correct: is_correct,
           time_ms: time_ms,
@@ -313,6 +316,7 @@ export function useTypingModule(
     displayIndex,
     errors,
     errored,
+    errorInputs,
     startTime,
     wpm,
     accuracy,

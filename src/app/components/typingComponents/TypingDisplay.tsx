@@ -11,6 +11,8 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
     charIndex,
     errored,
     isComplete,
+    tMode,
+    errorInputs,
   } = useTyping();
   const cjCodes = getCangjie(text[charIndex]);
   const currCjHTML = cjCodes.map((cjC, index) => {
@@ -40,10 +42,11 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
         {text.split("").map((char, index) => (
           <span
             key={index}
-            className={`whitespace-pre-wrap inline-block ${index < charIndex
-              ? "text-green-500 bg-green-100"
-              : errored && index === charIndex
-                ? "text-red-500 bg-red-100"
+            className={`whitespace-pre-wrap inline-block ${
+              (errored && index === charIndex || errorInputs[index] !== "")
+              ? "text-red-500 bg-red-100"
+              : index < charIndex
+                ? "text-green-500 bg-green-100"
                 : "text-gray-700"
               }`}
           >
@@ -59,20 +62,28 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
             <h2 className="whitespace-pre-wrap bg-blue-300 block w-fit place-self-center text-gray-500 text-[40px] text-center">
               <span>{text[charIndex]}</span>
             </h2>
-            {/*for display 倉頡碼 of current char*/}
-            <div className="text-gray-500 flex justify-center">
-              {currCjHTML}
-            </div>
-            {currCjHTML &&
+            {tMode === "practice" &&
               (
-                <span className="place-self-end block">
-                  <a className="underline text-[#646cff]"
-                    target="_blank"
-                    href={`https://www.hkcards.com/cj/cj-char-${text[charIndex]}.html`}
-                  >
-                    🔍 在HKcards了解拆字原理
-                  </a>
-                </span>
+                <>
+                {/*for display 倉頡碼 of current char*/}
+                  <div className="text-gray-500 flex justify-center">
+                    {currCjHTML}
+                  </div>
+                  <>
+                    {currCjHTML &&
+                      (
+                        <span className="place-self-end block">
+                          <a className="underline text-[#646cff]"
+                            target="_blank"
+                            href={`https://www.hkcards.com/cj/cj-char-${text[charIndex]}.html`}
+                          >
+                            🔍 在HKcards了解拆字原理
+                          </a>
+                        </span>
+                      )
+                    }
+                  </>
+                </>
               )
             }
           </div>

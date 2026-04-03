@@ -16,8 +16,7 @@ export default function TypingInput() {
     text,              // 原文字
     displayText,       // 已輸入的顯示內容（包含錯字）
     charIndex,         // 當前應該輸入的位置
-    displayIndex,         //
-    errored,           // 是否剛打錯
+    //tMode,
     isComplete
   } = useTyping();
   const inputDefaultWidth = 0; //px
@@ -33,27 +32,28 @@ export default function TypingInput() {
   const typedTextHTML = displayText
     .map(([displayChar, isCorrect], index) => {
       let typedTextClassName = "whitespace-pre-wrap inline-block text-lg";
-
-      if (isCorrect) {
-        typedTextClassName += " text-green-600"; // 已正確完成的字
-        return (
-          <span key={index} className={typedTextClassName}>
-            {displayChar}
-          </span>
-        );
+      switch (isCorrect) {
+        case 0: // 錯字（紅色 + 粗體）
+          typedTextClassName += " bg-red-100 text-red-600 font-bold";
+          break;
+        case 1: // 已正確完成的字
+          typedTextClassName += " text-green-600";
+          break;
+        case 2: // 錯誤了的字（黃色）
+          typedTextClassName += " text-yellow-600";
+          break;
+        default:
+          typedTextClassName += " text-gray-700";
       }
-      else {
-        typedTextClassName += " bg-red-100 text-red-600 font-bold"; // 錯字（紅色 + 粗體）
-        return (
-          <span key={index} className={typedTextClassName}>
-            {displayChar}
-          </span>
-        );
-      }
+      return (
+        <span key={index} className={typedTextClassName}>
+          {displayChar}
+        </span>
+      );
     });
 
   const inputPlaceholderHTML: Iterable<ReactNode> = text
-    .slice(charIndex+1, text.length)
+    .slice(charIndex + 1, text.length)
     .split('')
     .map((char, index) => {
       const inputPlaceholderClassName = "whitespace-pre-wrap inline-block text-lg text-gray-500";
@@ -91,11 +91,15 @@ export default function TypingInput() {
         {typedTextHTML/*typed words*/}
         <input
           ref={TypingInputRef}
-          type={isComplete ? "hidden" : "text"}
+          type={isComplete && charIndex >= text.length ? "hidden" : "text"}
           autoFocus
-          style={{ width: inputWidth, minWidth: getTextWidth(text[charIndex], "1.125rem", "font-mono w-fit inline text-lg font-mono", inputDefaultWidth) }}
-          className="inline bg-blue-200 border-none text-lg font-mono
-                   text-black focus:outline-none px-px"
+          style={{
+            width: inputWidth,
+            minWidth: 2 + getTextWidth(text[charIndex], "1.125rem", "font-mono w-fit inline text-lg font-mono", inputDefaultWidth)
+          }}
+          className={`whitespace-pre-wrap inline-block text-lg 
+          ${!isComplete ? "bg-blue-200" : "bg-gray-200"}
+          border-none text-black focus:outline-none px-px`}
           onCompositionUpdate={changeInputWidth}
           onCompositionStart={handleCompositionStart}
           onCompositionEnd={
