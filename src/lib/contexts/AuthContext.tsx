@@ -4,7 +4,6 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
-import { json } from "stream/consumers";
 
 interface Profile {
   id: string;
@@ -34,23 +33,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 使用 useMemo 確保 client 只建立一次
-  const supabase = useMemo(() => createClient(), []);
+  const [supabase] = useState(() => createClient());
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const withTimeout = <T,>(
+  const withTimeout = async <T,>(
     promise: Promise<T>,
-    timeoutMs: number = 5000 // 5s
+    timeoutMs: number = 5000, // 5s
   ): Promise<T> => {
+    let timeoutId: ReturnType<typeof setTimeout>;
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
+        console.warn("supabase: ", supabase, "auth: ", supabase?.auth, "session: ", session, "user: ", user, "profile: ", profile, "promise: ", promise);
         reject(new Error(`請求超時(超過 ${timeoutMs / 1000} 秒)，請嘗試重新加載頁面或稍後再試。`));
       }, timeoutMs);
     });
 
-    return Promise.race([promise, timeoutPromise]);
+    return await Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
   };
 
   // 獲取 session + profile
@@ -68,66 +69,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     return data;
   };
-  const SetSessionAndProfile = async (session: Session | null) => {
-    setSession(session);
-    setUser(session?.user ?? null);
-
-    if (session?.user) {
-      const profileData = await fetchProfile(session.user.id);
-      setProfile(profileData);
-    } else {
-      setProfile(null);
-    }
-
-    setLoading(false);
-  };
 
   useEffect(() => {
-    if (!supabase) {
-      console.error("Supabase client 未初始化");
-      return
-    }; // 防呆，雖然在 client 應該永遠有
-    let isMounted = true; // 防止在 component unmounted 後更新 state
+    let isMounted = true;
 
-    // 獲取初始會話
-    supabase.auth.getSession().then(async ({ data: { session } }) => await SetSessionAndProfile(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, currentSession) => {
+        console.log("Auth 事件觸發:", event);
+        if (!isMounted) return;
 
-    // 監聽認證狀態變化
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (isMounted) await SetSessionAndProfile(session);
-    });
+        // 瞬間更新 React State，不阻礙 Supabase 的底層 Lock
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
 
-    // 監聽 visibility change 以刷新 session（確保在用戶回到頁面時 session 是最新的）
-    const SupabaseRefreshSessionWithProfile = async () => {
-      console.log("頁面 visibility changed:", document.visibilityState);
-      if (document.visibilityState !== "visible" || !isMounted) {
-        return; // only refresh when tab is active
+        if (!currentSession?.user) {
+          setProfile(null);
+          setLoading(false);
+        }
       }
-      console.log("正在刷新 session...");
-      supabase.auth.refreshSession().then(async ({ data: { session }, error }) => {
-        if (error) {
-          console.warn("刷新 session 失敗，可能是因為沒有有效的 refresh token:", error);
-          return;
-        }
-        if (session && isMounted) {
-          console.log("Session 刷新成功，更新 session 和 profile");
-          SetSessionAndProfile(session);
-        }
-      });
-    }
-    document.addEventListener("visibilitychange", async (event) => {
-      await SupabaseRefreshSessionWithProfile();
-    });
+    );
 
     return () => {
-      console.log("AuthProvider unmounted，正在清理訂閱和事件監聽器...");
       isMounted = false;
-      document.removeEventListener("visibilitychange", async (event) => {
-        await SupabaseRefreshSessionWithProfile();
-      });
-      subscription.unsubscribe()
+      subscription.unsubscribe();
     };
   }, [supabase]);
+
+  // 🟢 拆解步驟 B：當 User 狀態變更時，獨立去抓取 Profile (這時 Auth 模組已經解鎖了)
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProfile = async () => {
+      if (user) {
+        const profileData = await fetchProfile(user.id);
+        if (isMounted) {
+          setProfile(profileData);
+          setLoading(false);
+        }
+      }
+    };
+
+    loadProfile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user, supabase]);
 
   // ==================== 改成 throw error 的模式 ====================
 
@@ -135,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const signInPromise = async () => {
       if (!supabase) throw new Error("Supabase client 未初始化");
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
         throw new Error(error.message || "登入失敗");
