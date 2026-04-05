@@ -234,7 +234,7 @@ export function useTypingModule(
       errors: errors,
       wpm: wpm,
       accuracy: accuracy,
-      completionRate: completionRate,
+      completion_rate: completionRate,
     };
 
     console.log("準備儲存打字記錄:", session);

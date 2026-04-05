@@ -5,7 +5,7 @@ export default function TypingStats() {
   const { wpm, accuracy, completionRate, tMode } = useTyping();
 
   return (
-    <div className={`grid ${tMode === "quiz" ? "grid-cols-3" : "grid-cols-2"} gap-4 mb-8`}>
+    <div className={`grid ${tMode === "quiz" ? "grid-cols-3 max-sm:grid-cols-1 max-sm:grid-rows-3" : "grid-cols-2"} gap-4 mb-8`}>
       <div className="bg-blue-50 p-4 rounded-lg text-center">
         <p className="text-gray-600 text-sm">速度 (WPM)</p>
         <p className="text-2xl font-bold text-blue-600">{wpm}</p>

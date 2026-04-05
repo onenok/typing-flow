@@ -74,7 +74,7 @@ export default function ResultDetailPage() {
           <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
             <h2 className="text-2xl font-semibold mb-6 text-gray-800">總結</h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="bg-blue-50 p-4 rounded-lg text-center">
                 <p className="text-gray-600 text-sm">模式</p>
                 <p className="text-xl font-bold text-blue-600">
@@ -87,6 +87,16 @@ export default function ResultDetailPage() {
                   {session.duration_seconds}秒
                 </p>
               </div>
+            </div>
+            <div className={`
+              grid 
+              ${session.mode === "quiz" ?
+                "grid-cols-3 max-sm:grid-cols-1 max-sm:grid-rows-3"
+                :
+                "grid-cols-2"
+              } 
+              gap-4 mb-8
+              `}>
               <div className="bg-green-50 p-4 rounded-lg text-center">
                 <p className="text-gray-600 text-sm">速度</p>
                 <p className="text-xl font-bold text-green-600">
@@ -99,6 +109,16 @@ export default function ResultDetailPage() {
                   {session.accuracy}%
                 </p>
               </div>
+              {
+                (session.mode === "quiz") && (
+                  <div className="bg-yellow-50 p-4 rounded-lg text-center">
+                    <p className="text-gray-600 text-sm">完成率</p>
+                    <p className="text-xl font-bold text-yellow-600">
+                      {session.completion_rate||(session.typed_chars / session.total_chars * 100).toFixed(2)}%
+                    </p>
+                  </div>
+                )
+              }
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -111,7 +131,7 @@ export default function ResultDetailPage() {
               <div className="bg-gray-50 p-4 rounded-lg text-center">
                 <p className="text-gray-600 text-sm">已輸入字符</p>
                 <p className="text-2xl font-bold text-gray-800">
-                  {session.typed_chars||"N/A"}
+                  {session.typed_chars || "N/A"}
                 </p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg text-center">
@@ -184,12 +204,12 @@ export default function ResultDetailPage() {
                               <td className="px-4 py-2 text-wrap wrap-break-word">
                                 {detail.wrong_types.split("").map((wt, index) => {
                                   return (
-                                  <React.Fragment key={index}>
-                                  <span className="bg-red-100 text-red-500 whitespace-pre" key={index}>
-                                    {wt}
-                                  </span>
-                                  {index < detail.wrong_types.length - 1 && <span className="text-red-400">, </span>}
-                                  </React.Fragment>
+                                    <React.Fragment key={index}>
+                                      <span className="bg-red-100 text-red-500 whitespace-pre" key={index}>
+                                        {wt}
+                                      </span>
+                                      {index < detail.wrong_types.length - 1 && <span className="text-red-400">, </span>}
+                                    </React.Fragment>
                                   )
                                 })}
                               </td>
@@ -197,17 +217,16 @@ export default function ResultDetailPage() {
                         <td className="px-4 py-2">
                           <span className="px-2 py-1 rounded text-nowrap text-gray-700 text-sm">
                             {
-                            (detail.isTyped === false) ?
-                              "未輸入"
-                            :
-                            `${detail.time_ms} ms`
+                              (detail.isTyped === false) ?
+                                "未輸入"
+                                :
+                                `${detail.time_ms} ms`
                             }
                           </span>
                         </td>
                         <td className="px-4 py-2">
                           <span
-                            className={`px-2 py-1 rounded text-nowrap text-white text-sm ${
-                              detail.isTyped === false ? "bg-gray-500" : detail.is_correct ? "bg-green-500" : "bg-red-500"
+                            className={`px-2 py-1 rounded text-nowrap text-white text-sm ${detail.isTyped === false ? "bg-gray-500" : detail.is_correct ? "bg-green-500" : "bg-red-500"
                               }`}
                           >
                             {detail.isTyped === false ? "未輸入" : detail.is_correct ? "正確" : "錯誤"}

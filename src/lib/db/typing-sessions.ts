@@ -14,6 +14,7 @@ export interface TypingSession {
   errors: number;
   wpm: number;
   accuracy: number;
+  completion_rate: number; // only for quiz mode
   created_at: string;
 }
 
@@ -71,6 +72,7 @@ export async function createTypingSession(session: {
   errors?: number;
   wpm: number;
   accuracy: number;
+  completion_rate: number; // only for quiz mode
 }): Promise<TypingSession> {
   const createTypingSessionPromise = async () => {
     const supabase = await createServerSupabase();
