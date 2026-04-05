@@ -30,6 +30,7 @@ export function useTypingModule(
   const [lastTime, setLastTime] = useState<number | null>(null);
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(0);
+  const [completionRate, setCompletionRate] = useState(0);
 
   const [correctChars, setCorrectChars] = useState(0);
   const [errors, setErrors] = useState(0);
@@ -110,14 +111,16 @@ export function useTypingModule(
 
   // ==================== calc WPM & Accuracy ====================
   const calculateWpmAndAccuracy = useCallback((startTime: number, charIndex: number, errors: number) => {
-    if (!startTime) return { wpm: 0, accuracy: 0 };
+    if (!startTime) return { wpm: 0, accuracy: 0, completionRate: 0 };
 
     const currentWpm = Math.round(((charIndex / 5) / ((Date.now() - startTime) / 60000)) * 100) / 100;
     const currentAccuracy = charIndex > 0
       ? Math.round((charIndex / (charIndex + errors)) * 100)
       : 0;
 
-    return { wpm: currentWpm, accuracy: currentAccuracy };
+    const currentCompletionRate = Math.round((charIndex / text.length) * 100);
+
+    return { wpm: currentWpm, accuracy: currentAccuracy, completionRate: currentCompletionRate };
   }, [startTime, charIndex, errors]);
 
   // ==================== Typing handling ====================
@@ -167,12 +170,13 @@ export function useTypingModule(
       newErrorInputs,
       newCharIndex
     )
-    const { wpm: newWpm, accuracy: newAccuracy } = calculateWpmAndAccuracy(
+    const { wpm: newWpm, accuracy: newAccuracy, completionRate: newCompletionRate } = calculateWpmAndAccuracy(
       startTimeUse, newCharIndex, newErrors
     );
 
     setWpm(newWpm);
     setAccuracy(newAccuracy);
+    setCompletionRate(newCompletionRate);
     setTimeOfEachChar(newTimeOfEachChar);
     setDisplayIndex(newDisplay.length);
     setDisplayText(newDisplay);
@@ -230,6 +234,7 @@ export function useTypingModule(
       errors: errors,
       wpm: wpm,
       accuracy: accuracy,
+      completionRate: completionRate,
     };
 
     console.log("準備儲存打字記錄:", session);
@@ -320,6 +325,7 @@ export function useTypingModule(
     startTime,
     wpm,
     accuracy,
+    completionRate,
     displayText,
     TypingInputRef,
     isComplete,

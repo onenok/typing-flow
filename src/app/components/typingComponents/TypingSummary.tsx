@@ -15,7 +15,7 @@ interface TypingSummaryProps {
 
 export default function TypingSummary({ onNextLevel, onBackToLevels }: TypingSummaryProps) {
   const { user, loading } = useAuth();
-  const { wpm, accuracy, reset, isComplete, tMode } = useTyping();
+  const { wpm, accuracy, reset, isComplete, tMode, completionRate } = useTyping();
   const [isShow, setIsShow] = useState(false);
   const [is100Opacity, setIs100Opacity] = useState(false);
   const endOverlayRef = useRef<HTMLDivElement>(null);
@@ -66,29 +66,39 @@ export default function TypingSummary({ onNextLevel, onBackToLevels }: TypingSum
       >
         <h2 className="mb-8 text-4xl font-black text-gray-800">關卡完成！🎉</h2>
 
-        <div className="mb-10 grid grid-cols-2 gap-6">
-          <div className="rounded-2xl bg-blue-50 p-8 max-sm:p-3 shadow-sm">
+        <div className={`mb-10 grid ${tMode === "quiz" ? "grid-cols-3 max-sm:grid-cols-1 max-sm:grid-rows-3" : "grid-cols-2"} gap-6`}>
+          <div className="rounded-2xl bg-blue-50 p-5 max-sm:p-3 shadow-sm">
             <div className="text-xs font-black uppercase tracking-widest text-blue-600">打字速度</div>
             <div className="mt-2 text-5xl max-sm:text-3xl font-black text-blue-900">
               {wpm} <span className="text-xl">WPM</span>
             </div>
           </div>
-          <div className="rounded-2xl bg-green-50 p-8 max-sm:p-3 shadow-sm">
+          <div className="rounded-2xl bg-green-50 p-5 max-sm:p-3 shadow-sm">
             <div className="text-xs font-black uppercase tracking-widest text-green-600">正確率</div>
             <div className="mt-2 text-5xl max-sm:text-3xl font-black text-green-900">
               {accuracy}%
             </div>
           </div>
+          {
+            (tMode === "quiz") && (
+              <div className="rounded-2xl bg-yellow-50 p-5 max-sm:p-3 shadow-sm">
+                <div className="text-xs font-black uppercase tracking-widest text-yellow-600">完成率</div>
+                <div className="mt-2 text-5xl max-sm:text-3xl  font-black text-yellow-900">
+                  {completionRate}%
+                </div>
+              </div>
+            )
+          }
         </div>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+        <div className="flex flex-col gap-4 sm:flex-row sm:justify-center text-nowarp">
           {onNextLevel && (
             <button
               onClick={() => {
                 reset();
                 onNextLevel();
               }}
-              className="rounded-2xl bg-blue-600 px-10 py-4 text-lg font-black text-white shadow-lg transition-all hover:bg-blue-700 hover:scale-105 active:scale-95"
+              className="rounded-2xl text-nowarp bg-blue-600 px-5 py-4 text-lg font-black text-white shadow-lg transition-all hover:bg-blue-700 hover:scale-105 active:scale-95"
             >
               下一關
             </button>
@@ -98,33 +108,33 @@ export default function TypingSummary({ onNextLevel, onBackToLevels }: TypingSum
               reset();
               onBackToLevels();
             }}
-            className="rounded-2xl border border-gray-200 bg-white px-10 py-4 text-lg font-black text-gray-600 transition-all hover:bg-gray-50"
+            className="rounded-2xl border border-gray-200 bg-white px-5 py-4 text-lg font-black text-gray-600 transition-all hover:bg-gray-50"
           >
             返回關卡列表
           </button>
           <button
             onClick={reset}
-            className="rounded-2xl border border-gray-200 bg-gray-50 px-10 py-4 text-lg font-black text-gray-500 transition-all hover:bg-gray-100"
+            className="rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4 text-lg font-black text-gray-500 transition-all hover:bg-gray-100"
           >
             重新{tMode?'練習':'測驗'}
           </button>
           {
             loading ? (
-              <div className="inline-block bg-gray-200 text-gray-500 px-6 py-2 rounded-lg animate-pulse">
+              <div className="inline-block bg-gray-200 text-gray-500 px-6 sm:px-5 md:px-6 py-2 rounded-lg animate-pulse">
                 加載中...
               </div>
             ) :
             user ?
               <Link
                 href="/results"
-                className="inline-block bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
+                className="inline-flex text-center justify-center items-center bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
               >
                 查看結果記錄
               </Link>
               :
               <Link
                 href="/auth/login"
-                className="inline-block bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition animate-pulse"
+                className="inline-flex text-center justify-center items-center bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition animate-pulse"
               >
                 登入帳戶即可記錄并查看結果
               </Link>
