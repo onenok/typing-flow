@@ -6,6 +6,7 @@ import TypingDisplay from "./TypingDisplay";
 import TypingInput from "./TypingInput";
 import TypingStats from "./TypingStats";
 import TypingButtons from "./TypingButtons";
+import TypingSummary from "./TypingSummary";
 import QuizTimer from "./QuizTimer";
 import "./typingStyle.css";
 
@@ -15,6 +16,8 @@ interface TypingModuleProps {
   title: string;
   tMode: "practice" | "quiz";
   timeoutS?: number;
+  onNextLevel?: () => void;
+  onBackToLevels?: () => void;
 }
 
 export default function TypingModule(
@@ -23,7 +26,9 @@ export default function TypingModule(
     children,
     initialText = "這是一段測試文字，正常來說，你不應該看到它。",
     tMode,
-    timeoutS = 60
+    timeoutS = 60,
+    onNextLevel,
+    onBackToLevels = () => {},
   }: TypingModuleProps
 ) {
   return (
@@ -35,7 +40,7 @@ export default function TypingModule(
         {!hasChild(children, "input") && <TypingInput />}
         {!hasChild(children, "stats") && <TypingStats />}
         {!hasChild(children, "reset") && <TypingButtons />}
-
+        {!hasChild(children, "summary") && <TypingSummary onNextLevel={onNextLevel} onBackToLevels={onBackToLevels} />}
         {/* 使用者自訂內容 */}
         {children}
       </div>
