@@ -3,8 +3,6 @@ import { Suspense } from "react";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import PracticeClient from "./PracticeClient";
 
-
-
 export default function PracticePage() {
   return (
     <Suspense fallback={

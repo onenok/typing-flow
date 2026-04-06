@@ -1,3 +1,4 @@
+//src\app\quiz\QuizClient.tsx
 "use client";
 
 import { useAuth } from "@/lib/contexts/AuthContext";
@@ -7,7 +8,6 @@ import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import { QuizLEVELS, QLevel } from "@/lib/levels";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-
 
 export default function QuizClient() {
   const router = useRouter();
