@@ -22,15 +22,22 @@ export default function TypingSummary({ onNextLevel, onBackToLevels }: TypingSum
   const isCompleteRef = useRef(isComplete);
 
   useEffect(() => {
+    let timeoutid: ReturnType<typeof setTimeout> | undefined;
     if (isComplete) {
-      setIsShow(true);
-      setIs100Opacity(true);
-      isCompleteRef.current = true;
-    }
-    else {
+      timeoutid = setTimeout(() => {
+        setIsShow(true);
+        setIs100Opacity(true);
+        isCompleteRef.current = true;
+      }, 100);
+    } else {
+      if (timeoutid) clearTimeout(timeoutid);
       setIsShow(false);
       isCompleteRef.current = false;
     }
+    // Cleanup in case the component unmounts while a timeout is pending
+    return () => {
+      if (timeoutid) clearTimeout(timeoutid);
+    };
   }, [isComplete]);
 
   useEffect(() => {
@@ -116,7 +123,7 @@ export default function TypingSummary({ onNextLevel, onBackToLevels }: TypingSum
             onClick={reset}
             className="rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4 text-lg font-black text-gray-500 transition-all hover:bg-gray-100"
           >
-            重新{tMode?'練習':'測驗'}
+            重新{tMode ? '練習' : '測驗'}
           </button>
           {
             loading ? (
@@ -124,20 +131,20 @@ export default function TypingSummary({ onNextLevel, onBackToLevels }: TypingSum
                 加載中...
               </div>
             ) :
-            user ?
-              <Link
-                href="/results"
-                className="inline-flex text-center justify-center items-center bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
-              >
-                查看結果記錄
-              </Link>
-              :
-              <Link
-                href="/auth/login"
-                className="inline-flex text-center justify-center items-center bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition animate-pulse"
-              >
-                登入帳戶即可記錄并查看結果
-              </Link>
+              user ?
+                <Link
+                  href="/results"
+                  className="inline-flex text-center justify-center items-center bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
+                >
+                  查看結果記錄
+                </Link>
+                :
+                <Link
+                  href="/auth/login"
+                  className="inline-flex text-center justify-center items-center bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition animate-pulse"
+                >
+                  登入帳戶即可記錄并查看結果
+                </Link>
           }
         </div>
 
