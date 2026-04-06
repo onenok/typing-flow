@@ -30,7 +30,7 @@ export default function ResultDetailClient({ initialSession, initialDetails }: P
   // 1. 如果資料庫找不到該筆資料 (!initialSession)
   // 2. 或者使用者未登入 (!user)
   // 3. 或者該筆資料的擁有者不是當前登入的使用者 (initialSession.user_id !== user.id)
-  if (!initialSession || !user || initialSession.user_id !== user.id) {
+  if (!initialSession || !user || initialSession?.user_id !== user?.id) {
     return (
       <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
