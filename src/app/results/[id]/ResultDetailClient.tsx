@@ -10,6 +10,8 @@ import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import { TypingDetail, TypingSession } from "@/lib/db/typing-sessions";
 import React from "react";
 
+export const runtime = "edge";
+
 export default function ResultDetailClient() {
   const { user, loading } = useAuth();
   const params = useParams();
