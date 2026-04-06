@@ -20,13 +20,6 @@ export interface QLevel {
 
 export const PracticeLEVELS: PLevel[] = [
   {
-    id: "-1",
-    title: "測試",
-    description: "這是一個測試關卡，用於開發和調試。",
-    text: "女月",
-    difficulty: 'easy'
-  },
-  {
     id: "1",
     title: "基礎字根",
     description: "練習最基本的字根，適合初學者。\n(提示: 「Z」和「X」鍵是倉頡的特殊字符鍵，因此不包含在練習文本中。)",
