@@ -12,7 +12,7 @@ export default function Nav() {
 
   return (
     <div className="sticky top-0 max-w-dvw z-9999">
-      <nav className="site-nav shadow-lg max-w-dvw z-9999">
+      <nav className="site-nav gap-4 max-sm:gap-2 shadow-lg max-w-dvw z-9999">
         <div className="logo whitespace-nowrap">Typing Flow</div>
         <div className="gap-6 flex whitespace-nowrap max-sm:hidden">
           <Link href="/" className="nav-item">
@@ -35,7 +35,7 @@ export default function Nav() {
               <div className="nav-item block justify-self-end w-full text-right">載入中...</div>
             </div>
           ) : user ? (
-            <div className="gap-6 flex w-full">
+            <div className="gap-6 max-sm:gap-3 flex w-full">
               <Link href="/profile" className="w-full text-gray-400 text-ellipsis overflow-hidden whitespace-nowrap text-right">
                 {profile?.display_name || profile?.username || user.email || "用戶"}
               </Link>
@@ -80,20 +80,15 @@ export default function Nav() {
       <div className={`
         sm:hidden
         absolute top-full left-0 w-full bg-gray-800 shadow-lg border-b-
-        flex flex-col items-center py-4 gap-8 z-9998
+        flex flex-col items-center py-2 z-9998
         transition-all duration-300 ease-in-out 
         *:text-2xl
         *:w-full
         *:text-center
-        *:not-last:relative
-        *:not-last:after:content-['']
-        *:not-last:after:absolute
-        *:not-last:after:-bottom-4
-        *:not-last:after:left-1/2
-        *:not-last:after:-translate-x-1/2
-        *:not-last:after:w-[90dvw]
-        *:not-last:after:h-0.5
-        *:not-last:after:bg-gray-200
+        *:border-gray-500
+        *:not-last:pb-2
+        *:not-last:border-b
+        *:not-first:pt-2
         ${isMenuOpen
           ? 'translate-y-0'
           : '-translate-y-full pointer-events-none'

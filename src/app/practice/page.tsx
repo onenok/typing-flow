@@ -57,7 +57,7 @@ export default function PracticePage() {
   }
 
   return (
-    <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 min-h-screen">
+    <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100">
       <main className="container mx-auto px-4 py-8">
         {!selectedLevel ? (
           <>

@@ -56,7 +56,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 min-h-screen">
+    <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100">
       <main className="container mx-auto px-4 py-8">
         {!selectedLevel ? (
           <>
@@ -78,8 +78,11 @@ export default function QuizPage() {
                     level.difficulty === 'medium' ? 'bg-yellow-400' : 'bg-red-400'
                     }`} />
 
-                  <div className="mb-4 text-xs font-bold uppercase tracking-widest text-blue-500">
-                    Level {level.id}
+                  <div className="flex items-start justify-between mb-4 text-xs font-bold uppercase tracking-widest text-blue-500">
+                    <span>Level {level.id}</span>
+                    <h3 className="text-sm font-bold align-text-top text-blue-500 uppercase">
+                      time limit: <span className="text-red-500">{level.timeLimitS}</span>秒
+                    </h3>
                   </div>
 
                   <h2 className="mb-2 text-2xl font-black text-gray-800">
