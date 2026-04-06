@@ -7,7 +7,6 @@ import { fetchUserSessions } from "@/app/typing/actions";
 import Link from "next/link";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 
-export const runtime = 'nodejs';
 
 export default function ResultsPage() {
   const { user, loading } = useAuth();

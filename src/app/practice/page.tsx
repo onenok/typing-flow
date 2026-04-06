@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import PracticeClient from "./PracticeClient";
 
-export const runtime = 'nodejs';
 
 export default function PracticePage() {
   return (

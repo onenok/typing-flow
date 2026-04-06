@@ -9,7 +9,6 @@ const combineTextAndWrongTypeds = (Text: string[], WrongTypeds: string[], currCh
   return Text.flatMap((item, index) => [[item, WrongTypeds[index - 1]?.[0] ? 2 : 1], [WrongTypeds[index][0], 0]]);
 };
 
-export const runtime = 'nodejs';
 
 export function useTypingModule(
   initialText: string = "這是一段測試文字，正常來說，你不應該看到它。",

@@ -1,7 +1,6 @@
 // src\lib\db\typing-sessions.ts
 import { createServerSupabase } from "@/lib/supabase/server/server";
 
-export const runtime = 'nodejs';
 export interface TypingSession {
   id: string;
   user_id: string;
