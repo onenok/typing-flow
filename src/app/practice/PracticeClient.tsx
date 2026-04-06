@@ -4,10 +4,8 @@
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState, useCallback, useEffect } from "react";
 import TypingModule from "@/app/components/typingComponents/TypingModule";
-import Link from "next/link";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import { PracticeLEVELS, PLevel } from "@/lib/levels";
-import TypingSummary from "@/app/components/typingComponents/TypingSummary";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
