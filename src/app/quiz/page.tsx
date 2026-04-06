@@ -49,9 +49,15 @@ export default function QuizPage() {
 
   if (loading) {
     return (
-      <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
-        <LoadingScreen />
-      </div>
+      <Suspense fallback={
+        <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+          <LoadingScreen />
+        </div>
+      }>
+        <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
+          <LoadingScreen />
+        </div>
+      </Suspense>
     );
   }
 
