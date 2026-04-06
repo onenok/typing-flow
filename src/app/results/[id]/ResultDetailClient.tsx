@@ -1,45 +1,24 @@
-// src\app\results\[id]\ResultDetailClient.tsx
+// src/app/results/[id]/ResultDetailClient.tsx
 "use client";
 
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { fetchTypingSession, fetchTypingDetails } from "@/app/typing/actions";
 import Link from "next/link";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import { TypingDetail, TypingSession } from "@/lib/db/typing-sessions";
 import React from "react";
 
-export const runtime = "edge";
+// 接收來自 Server Component 的初始資料
+interface Props {
+  initialSession: TypingSession | null;
+  initialDetails: TypingDetail[];
+}
 
-export default function ResultDetailClient() {
+export default function ResultDetailClient({ initialSession, initialDetails }: Props) {
+  // 只保留使用者的 Auth 狀態檢查
   const { user, loading } = useAuth();
-  const params = useParams();
-  const sessionId = params.id as string;
 
-  const [session, setSession] = useState<TypingSession | null>(null);
-  const [details, setDetails] = useState<TypingDetail[]>([]);
-  const [loadingData, setLoadingData] = useState(true);
-
-  useEffect(() => {
-    if (!user || !sessionId) return;
-
-    const fetchData = async () => {
-      setLoadingData(true);
-      const sessionData: TypingSession | null = await fetchTypingSession(sessionId);
-      const detailsData: TypingDetail[] = await fetchTypingDetails(sessionId);
-
-      if (sessionData && sessionData.user_id === user.id) {
-        setSession(sessionData);
-        setDetails(detailsData);
-      }
-      setLoadingData(false);
-    };
-
-    fetchData();
-  }, [user, sessionId]);
-
-  if (loading || loadingData) {
+  // 如果驗證狀態還在載入中
+  if (loading) {
     return (
       <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
         <LoadingScreen />
@@ -47,7 +26,11 @@ export default function ResultDetailClient() {
     );
   }
 
-  if (!session) {
+  // 權限與資料驗證：
+  // 1. 如果資料庫找不到該筆資料 (!initialSession)
+  // 2. 或者使用者未登入 (!user)
+  // 3. 或者該筆資料的擁有者不是當前登入的使用者 (initialSession.user_id !== user.id)
+  if (!initialSession || !user || initialSession.user_id !== user.id) {
     return (
       <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
@@ -59,6 +42,10 @@ export default function ResultDetailClient() {
       </div>
     );
   }
+
+  // 通過驗證，將 initialSession 賦值給 session 以方便下方使用
+  const session = initialSession;
+  const details = initialDetails;
 
   const correctCount = details.filter((d) => d.is_correct).length;
   const errorCount = details.length - correctCount;
