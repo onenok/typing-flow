@@ -9,6 +9,8 @@ import { PracticeLEVELS, PLevel } from "@/lib/levels";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
+export const runtime = 'nodejs';
+
 export default function PracticeClient() {
   const router = useRouter();
   const { user, loading } = useAuth();

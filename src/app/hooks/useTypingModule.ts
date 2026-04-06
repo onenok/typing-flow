@@ -6,8 +6,10 @@ import { toast } from "sonner";
 import { TypingSession } from "@/lib/db/typing-sessions";
 
 const combineTextAndWrongTypeds = (Text: string[], WrongTypeds: string[], currCharIndex: number): [string, number][] => { // 0: red, 1: green, 2: yellow
-  return Text.flatMap((item, index) => [[item, WrongTypeds[index-1]?.[0] ? 2 : 1], [WrongTypeds[index][0], 0]]);
+  return Text.flatMap((item, index) => [[item, WrongTypeds[index - 1]?.[0] ? 2 : 1], [WrongTypeds[index][0], 0]]);
 };
+
+export const runtime = 'nodejs';
 
 export function useTypingModule(
   initialText: string = "這是一段測試文字，正常來說，你不應該看到它。",
@@ -151,7 +153,7 @@ export function useTypingModule(
       newTimeOfEachChar[charIndex] = nowTime - lastTimeUse;
       newErrored = false;
       setCorrectChars((prev) => {
-        if (newErrorInputs[charIndex]!== "") return prev; // already has error input, don't count as correct char
+        if (newErrorInputs[charIndex] !== "") return prev; // already has error input, don't count as correct char
         return prev + 1;
       });
       newCharIndex += 1;
@@ -217,7 +219,7 @@ export function useTypingModule(
 
   // ==================== Finished handling ====================
   useEffect(() => {
-    if (!isComplete || !user?.id ||!lastTime || !startTime || loading || hasSavedRef.current || handlingUpdate.current) return;
+    if (!isComplete || !user?.id || !lastTime || !startTime || loading || hasSavedRef.current || handlingUpdate.current) return;
     hasSavedRef.current = true;
 
     const durationSeconds = Math.round((lastTime - startTime) / 1000 * 100) / 100;
