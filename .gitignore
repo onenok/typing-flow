@@ -16,6 +16,8 @@
 # next.js
 /.open-next/
 /.next/
+/.open-next_bak/
+/.next_bak/
 /out/
 
 # production
