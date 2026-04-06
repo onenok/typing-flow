@@ -98,7 +98,7 @@ export default function TypingSummary({ onNextLevel, onBackToLevels }: TypingSum
           }
         </div>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-center text-nowarp">
+        <div className="flex flex-col flex-wrap gap-4 sm:flex-row sm:justify-center text-nowarp">
           {onNextLevel && (
             <button
               onClick={() => {
