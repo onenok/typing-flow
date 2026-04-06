@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import QuizClient from "./QuizClient";
 
-export const runtime = "edge";
+;
 
 export default function QuizPage() {
   return (

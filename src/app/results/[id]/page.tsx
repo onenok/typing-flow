@@ -2,7 +2,7 @@
 import ResultDetailClient from "./ResultDetailClient";
 import { fetchTypingSession, fetchTypingDetails } from "@/app/typing/actions";
 
-export const runtime = "edge";
+;
 export const dynamic = 'force-dynamic';
 
 // 注意這裡的型別改變了：params 現在是一個 Promise
