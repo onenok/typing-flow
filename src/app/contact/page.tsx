@@ -18,7 +18,7 @@ export default function ContactPage() {
               若您在使用 Typing Flow 時遇到問題，或想建議新功能，請透過以下方式聯絡我們。
             </p>
 
-            <ul className="list-disc list-inside text-gray-700 mb-6">
+            <ul className="list-disc list-inside text-gray-700 mb-6 *:max-sm:list-none">
               <li>
                 GitHub Issues：
                 <a
