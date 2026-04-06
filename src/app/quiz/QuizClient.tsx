@@ -8,6 +8,7 @@ import { QuizLEVELS, QLevel } from "@/lib/levels";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
+
 export default function QuizClient() {
   const router = useRouter();
   const { user, loading } = useAuth();

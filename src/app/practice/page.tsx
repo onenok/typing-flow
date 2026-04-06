@@ -1,10 +1,9 @@
 // src\app\practice\page.tsx
-"use client";
-
 import { Suspense } from "react";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import PracticeClient from "./PracticeClient";
 
+export const runtime = "edge";
 
 export default function PracticePage() {
   return (
