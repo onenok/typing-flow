@@ -328,4 +328,49 @@ export const QuizLEVELS: QLevel[] = [
     category: "單詞",
     timeLimitS: 60
   },
+  {
+    id: "3-1",
+    title: "測驗 - 短篇組合 - 1",
+    description: "測驗對綜合能力的掌握程度。",
+    text: "清晨的空氣裡帶著露水的氣味。 窗外的鳥叫聲斷斷續續，像在試探這個世界是否已經醒來。",
+    difficulty: 'hard',
+    category: "短篇",
+    timeLimitS: 150
+  },
+  {
+    id: "3-2",
+    title: "測驗 - 短篇組合 - 2",
+    description: "測驗對綜合能力的掌握程度。",
+    text: "走進那家舊書店，時間彷彿慢了半拍。 灰塵在陽光中飄浮，每一本書都像一個沉睡的故事。",
+    difficulty: 'hard',
+    category: "短篇",
+    timeLimitS: 150
+  },
+  {
+    id: "3-3",
+    title: "測驗 - 短篇組合 - 3",
+    description: "測驗對綜合能力的掌握程度。",
+    text: "人工智慧正在改變我們的生活。 從語音助理到自動駕駛，這項技術讓許多事情變得更容易。 不過，我們也需要思考它帶來的隱私與道德問題。",
+    difficulty: 'hard',
+    category: "短篇",
+    timeLimitS: 180
+  },
+  {
+    id: "3-4",
+    title: "測驗 - 短篇組合 - 4",
+    description: "測驗對綜合能力的掌握程度。",
+    text: "那是一個秋天的傍晚，落葉鋪滿了整條小巷。 他站在路燈下，手中握著一封已經泛黃的信。 風吹過時，紙張微微顫抖，彷彿還藏著未說出口的話語。",
+    difficulty: 'hard',
+    category: "短篇",
+    timeLimitS: 180
+  },
+  {
+    id: "3-5",
+    title: "測驗 - 短篇組合 - 5",
+    description: "測驗對綜合能力的掌握程度。",
+    text: "雨落在鐵皮屋頂上，聲音忽大忽小。 他坐在窗邊，手裡握著一杯早已涼掉的茶，什麼也不想，只是聽雨。",
+    difficulty: 'hard',
+    category: "短篇",
+    timeLimitS: 150
+  },
 ];
