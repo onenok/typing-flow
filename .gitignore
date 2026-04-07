@@ -48,3 +48,7 @@ next-env.d.ts
 
 # backup files
 *.bak
+
+# tf
+/.tf_old/
+/.tf_old/vite-backup/*
