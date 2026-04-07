@@ -18,6 +18,8 @@
 /.next/
 /.open-next_bak/
 /.next_bak/
+/.wrangler/
+/.vercel/
 /out/
 
 # production

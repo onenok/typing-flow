@@ -13,8 +13,8 @@ export default function Nav() {
   return (
     <div className="sticky top-0 max-w-dvw z-9999">
       <nav className="site-nav gap-4 max-sm:gap-2 shadow-lg max-w-dvw z-9999">
-        <div className="logo whitespace-nowrap">
-          <Link href="/" className="nav-item">
+        <div className="">
+          <Link href="/" className="logo whitespace-nowrap">
             Typing Flow
           </Link>
         </div>
