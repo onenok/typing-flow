@@ -24,12 +24,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Typing Flow",
   description: "A typing practice platform with Supabase integration",
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-    apple: "/apple-touch-icon.png",
+  appleWebApp: {
+    title: "TypingFlow",
   },
 };
 
