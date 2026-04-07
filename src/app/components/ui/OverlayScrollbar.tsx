@@ -20,7 +20,7 @@ export default function OverlayScrollbar({
         },
       }}
       className={`h-full w-full overflow-hidden ${className}`}
-      style={{ height: "100vh", width: "100%" }}
+      style={{ height: "100dvh", width: "100%" }}
     >
       {children}
     </OverlayScrollbarsComponent>
