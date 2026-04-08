@@ -16,7 +16,6 @@
     "@opennextjs/cloudflare": "^1.18.0",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.98.0",
-    "hanzi-writer": "^3.7.3",
     "next": "^16.2.1",
     "overlayscrollbars": "^2.14.0",
     "overlayscrollbars-react": "^0.5.6",

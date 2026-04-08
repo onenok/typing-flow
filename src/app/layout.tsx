@@ -7,7 +7,6 @@ import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import { Toaster } from "sonner";
-import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import "overlayscrollbars/overlayscrollbars.css";
 import OverlayScrollbar from "@/app/components/ui/OverlayScrollbar";
 
@@ -26,6 +25,14 @@ export const metadata: Metadata = {
   description: "A typing practice platform with Supabase integration",
   appleWebApp: {
     title: "TypingFlow",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon0.svg", type: "image/svg+xml" },
+      { url: "/icon1.png", type: "image/png" },
+    ],
+    apple: "/apple-icon.png",
   },
 };
 
