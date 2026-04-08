@@ -16,6 +16,10 @@
 # next.js
 /.open-next/
 /.next/
+/.open-next_bak/
+/.next_bak/
+/.wrangler/
+/.vercel/
 /out/
 
 # production
@@ -33,6 +37,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.local
 
 # vercel
 .vercel
@@ -40,3 +45,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# backup files
+*.bak
+
+# tf
+/.tf_old/
+/.tf_old/vite-backup/*

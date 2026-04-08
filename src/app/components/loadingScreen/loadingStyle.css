@@ -1,0 +1,15 @@
+.loading-text {
+    color: #0066aa;
+    font-size: 2.5rem;
+}
+
+.loading-text::after {
+    animation: dotAnimation 1.5s forwards infinite ease-in-out;
+    content: "."
+}
+
+@keyframes dotAnimation {
+    0% { content: "."; }
+    50% { content: ".."; }
+    100% { content: "..."; }
+}
