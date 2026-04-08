@@ -8,7 +8,6 @@ import TypingStats from "./TypingStats";
 import TypingButtons from "./TypingButtons";
 import TypingSummary from "./TypingSummary";
 import QuizTimer from "./QuizTimer";
-import "./typingStyle.css";
 
 interface TypingModuleProps {
   children?: ReactNode;
@@ -34,21 +33,21 @@ export default function TypingModule(
   return (
     <TypingProvider initialText={initialText} tMode={tMode} timeoutS={timeoutS}>
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8 gap-4 grid">
-        {/* 預設區塊：如果使用者沒有自訂，就顯示這些 */}
+        {/* Default block: display these if user doesn't customize */}
         {!hasChild(children, "timer") && tMode === "quiz" && <QuizTimer />}
         {!hasChild(children, "display") && <TypingDisplay titleN={title} />}
         {!hasChild(children, "input") && <TypingInput />}
         {!hasChild(children, "stats") && <TypingStats />}
         {!hasChild(children, "reset") && <TypingButtons />}
         {!hasChild(children, "summary") && <TypingSummary onNextLevel={onNextLevel} onBackToLevels={onBackToLevels} />}
-        {/* 使用者自訂內容 */}
+        {/* User custom content */}
         {children}
       </div>
     </TypingProvider>
   );
 }
 
-// 輔助函數：檢查 children 是否有特定標記
+// Helper function: check if children has specific marker
 function hasChild(children: ReactNode, type: string): boolean {
   if (!children) return false;
 
@@ -56,7 +55,7 @@ function hasChild(children: ReactNode, type: string): boolean {
     if (!React.isValidElement(child)) return false;
     const props = child.props as {
       "data-typing"?: string;
-      [key: string]: unknown;  // 允許其他屬性
+      [key: string]: unknown;  // Allow other attributes
     };;
 
     return (

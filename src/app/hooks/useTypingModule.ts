@@ -114,7 +114,7 @@ export function useTypingModule(
   const calculateWpmAndAccuracy = useCallback((startTime: number, charIndex: number, errors: number) => {
     if (!startTime) return { wpm: 0, accuracy: 0, completionRate: 0 };
 
-    const currentWpm = Math.round(((charIndex / 5) / ((Date.now() - startTime) / 60000)) * 100) / 100;
+    const currentWpm = Math.round(((charIndex) / ((Date.now() - startTime) / 60000)) * 100) / 100;
     const currentAccuracy = charIndex > 0
       ? Math.round((charIndex / (charIndex + errors)) * 100)
       : 0;

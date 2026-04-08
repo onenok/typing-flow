@@ -2,10 +2,10 @@
 import rawData from './cangjie3.json';
 
 export type Cangjie3Dict = {
-    [char: string]: string[];   // 漢字 -> 倉頡碼陣列(eng)
+    [char: string]: string[];   // Chinese character -> Cangjie code array (eng)
 };
 export type eng2cjDict = {
-    [char: string]: string;   // eng -> 倉頡碼
+    [char: string]: string;   // eng -> Cangjie code
 };
 
 const cangjie3: Cangjie3Dict = rawData as Cangjie3Dict;
@@ -38,7 +38,7 @@ const eng2cjDict: eng2cjDict = {
     'z': 'Z',
 }
 export default { cangjie3, eng2cjDict };
-// 可選：幫你寫一個方便的查詢函數
+
 export function getCangjie(char: string): string[][][] {
     const temp = cangjie3[char]
     if (!temp) return [[[]]];

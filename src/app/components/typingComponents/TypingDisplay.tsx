@@ -2,7 +2,7 @@
 import { useTyping } from "./TypingProvider";
 import { getCangjie } from "@/lib/cangjie3";
 interface TypingDisplayProps {
-  titleN?: string;  // 可選
+  titleN?: string;  // optional title
 }
 
 export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
@@ -54,7 +54,7 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
           </span>
         ))}
       </div>
-      {/*for display current char and it's 倉頡碼*/}
+      {/*for display current char and its Cangjie code*/}
       {!isComplete &&
         (
           <div className="text-gray-500 text-sm mt-2 bg-gray-100 p-2 rounded-lg">
@@ -65,7 +65,7 @@ export default function TypingDisplay({ titleN = "" }: TypingDisplayProps) {
             {tMode === "practice" &&
               (
                 <>
-                {/*for display 倉頡碼 of current char*/}
+                {/*for display Cangjie code of current char*/}
                   <div className="text-gray-500 flex justify-center">
                     {currCjHTML}
                   </div>

@@ -1,9 +1,9 @@
 // src/app/typing/actions.ts
-'use server';  // 標記檔案為 Server Action
+'use server';  // Mark file as Server Action
 
 import { createServerSupabase } from '@/lib/supabase/server/server';
 
-// 匯入 typing-sessions 函式
+// Import typing-sessions functions
 import {
   createTypingSession,
   createTypingDetails,
@@ -12,8 +12,8 @@ import {
   getTypingDetails,
 } from '@/lib/db/typing-sessions';
 
-// 因為 typing-sessions.ts 用 createServerSupabase，所以本身已是伺服器安全的
-// 為了完整性，這裡重新包裝
+// Since typing-sessions.ts uses createServerSupabase, it is already server-safe
+// For completeness, rewrapped here
 
 export async function saveTypingSession(sessionData: any) {
   const session = await createTypingSession(sessionData);

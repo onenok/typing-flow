@@ -1,29 +1,29 @@
 // src/app/utils/getTextWidth.ts
 
 export const getTextWidth = (text: string, font: string, className?: string, fallback: number = 1): number => {
-  if (typeof document === 'undefined') return 0; // 防止 SSR 報錯
+  if (typeof document === 'undefined') return 0; // Prevent SSR errors
 
   if (text == '') { return fallback; };
-  // 1. 建立一個隱形的 span
+  // 1. Create an invisible span
   const span = document.createElement('span');
   
-  // 2. 套用 Class，讓它吃 CSS 設定
+  // 2. Apply Class to get CSS settings
   if (className) span.className = className;
 
-  // 3. 設定必要樣式以確保測量準確
+  // 3. Set necessary styles to ensure accurate measurement
   span.style.font = font;
   span.style.visibility = 'hidden';
   span.style.position = 'absolute';
   span.style.whiteSpace = 'pre-wrap';
   span.style.display = 'inline-block';
-  span.style.left = '-9999px'; // 移出畫面
+  span.style.left = '-9999px'; // Move off screen
   
-  // 4. 填入文字 (處理 Composition 時傳入的文字)
+  // 4. Fill in text (text passed when handling Composition)
   span.textContent = text;
 
-  // 5. 插入 DOM 並量取寬度
+  // 5. Insert into DOM and measure width
   document.body.appendChild(span);
-  const width = span.getBoundingClientRect().width; // 使用 getBoundingClientRect 更精準
+  const width = span.getBoundingClientRect().width; // Use getBoundingClientRect for more accuracy
   document.body.removeChild(span);
 
   return width;

@@ -13,9 +13,9 @@ export default function TypingInput() {
     handleCompositionStart,
     handleCompositionEnd,
     handleInput,
-    text,              // 原文字
-    displayText,       // 已輸入的顯示內容（包含錯字）
-    charIndex,         // 當前應該輸入的位置
+    text,              // Original text
+    displayText,       // Displayed input content (including wrong characters)
+    charIndex,         // Current position to input
     //tMode,
     isComplete
   } = useTyping();
@@ -33,13 +33,13 @@ export default function TypingInput() {
     .map(([displayChar, isCorrect], index) => {
       let typedTextClassName = "whitespace-pre-wrap inline-block text-lg";
       switch (isCorrect) {
-        case 0: // 錯字（紅色 + 粗體）
+        case 0: // Wrong char (red + bold)
           typedTextClassName += " bg-red-100 text-red-600 font-bold";
           break;
-        case 1: // 已正確完成的字
+        case 1: // Correctly completed character
           typedTextClassName += " text-green-600";
           break;
-        case 2: // 錯誤了的字（黃色）
+        case 2: // Incorrect character (yellow)
           typedTextClassName += " text-yellow-600";
           break;
         default:
@@ -79,7 +79,7 @@ export default function TypingInput() {
         輸入框（點擊這裡開始輸入，支援輸入法）
       </p>
 
-      {/* 輸入歷程顯示區（在輸入框上方，類似真實打字機效果） */}
+      {/* Input history display area (above input, like real typing effect) */}
       <div className="mt-2 p-4 bg-gray-50 border border-gray-200 rounded-lg min-h-12 text-lg font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
         onClick={() => {
           TypingInputRef.current?.focus();

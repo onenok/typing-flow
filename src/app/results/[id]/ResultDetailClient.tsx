@@ -7,17 +7,17 @@ import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import { TypingDetail, TypingSession } from "@/lib/db/typing-sessions";
 import React from "react";
 
-// 接收來自 Server Component 的初始資料
+// Receive initial data from Server Component
 interface Props {
   initialSession: TypingSession | null;
   initialDetails: TypingDetail[];
 }
 
 export default function ResultDetailClient({ initialSession, initialDetails }: Props) {
-  // 只保留使用者的 Auth 狀態檢查
+  // Only keep user Auth state check
   const { user, loading } = useAuth();
 
-  // 如果驗證狀態還在載入中
+  // If verification status is still loading
   if (loading) {
     return (
       <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -26,10 +26,10 @@ export default function ResultDetailClient({ initialSession, initialDetails }: P
     );
   }
 
-  // 權限與資料驗證：
-  // 1. 如果資料庫找不到該筆資料 (!initialSession)
-  // 2. 或者使用者未登入 (!user)
-  // 3. 或者該筆資料的擁有者不是當前登入的使用者 (initialSession.user_id !== user.id)
+  // Permission and data validation:
+  // 1. If record not found in database (!initialSession)
+  // 2. Or user is not logged in (!user)
+  // 3. Or the record owner is not the current logged-in user (initialSession.user_id !== user.id)
   if (!initialSession || !user || initialSession?.user_id !== user?.id) {
     return (
       <div className="h-full bg-linear-to-b from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -43,7 +43,7 @@ export default function ResultDetailClient({ initialSession, initialDetails }: P
     );
   }
 
-  // 通過驗證，將 initialSession 賦值給 session 以方便下方使用
+  // Pass validation, assign initialSession to session for convenient use below
   const session = initialSession;
   const details = initialDetails;
 

@@ -32,7 +32,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // 使用 useMemo 確保 client 只建立一次
+  // Use useMemo to ensure client is created only once
   const [supabase] = useState(() => createClient());
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return await Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
   };
 
-  // 獲取 session + profile
+  // Fetch session + profile
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
     if (!supabase) return null;
     const { data, error } = await supabase
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log("Auth 事件觸發:", event);
         if (!isMounted) return;
 
-        // 瞬間更新 React State，不阻礙 Supabase 的底層 Lock
+        // Instantly update React State without blocking Supabase's underlying lock
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [supabase]);
 
-  // 🟢 拆解步驟 B：當 User 狀態變更時，獨立去抓取 Profile (這時 Auth 模組已經解鎖了)
+  // 🟢 Decompose step B: When User state changes, independently fetch Profile (Auth module has unlocked by now)
   useEffect(() => {
     let isMounted = true;
 
@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user, supabase]);
 
-  // ==================== 改成 throw error 的模式 ====================
+  // ==================== Changed to throw error mode ====================
 
   const signIn = async (email: string, password: string): Promise<boolean> => {
     const signInPromise = async () => {
@@ -137,16 +137,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!supabase) throw new Error("Supabase client 未初始化");
 
       // == check if username is valid ==
-      if (!username || username.length < 3) {
-        throw new Error("Username 至少需要 3 個字元");
+      if (!username || username.length < 6) {
+        throw new Error("Username 至少需要 6 個字元");
       }
 
-      // 檢查格式（只允許小寫英文、數字、下劃線）
-      if (!/^[a-z0-9_]{3,20}$/.test(username)) {
-        throw new Error("Username 只能包含小寫英文、數字和下劃線，且長度 3-20 字元");
+      // Check format (only allow lowercase letters, numbers, underscores)
+      if (!/^[a-z0-9_]{6,20}$/.test(username)) {
+        throw new Error("Username can only contain lowercase letters, numbers, and underscores, length 6-20 characters");
       }
 
-      // 檢查 username 是否已被使用
+      // Check if username is already in use
       const { data: existingUser, error: checkError } = await supabase
         .from("profiles")
         .select("id")

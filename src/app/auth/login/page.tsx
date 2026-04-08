@@ -18,7 +18,6 @@ export default function LoginPage() {
   useEffect(() => {
       if (user && !loading) {
         router.push('/');
-        // router.replace('/') 也可以，視需求而定
       }
     }, [user, loading, router]);
   if (loading) {

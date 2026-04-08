@@ -19,11 +19,11 @@ export async function createServerSupabase() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value }) => {
-              // 只傳 name 和 value，忽略 options（Server Component 安全）
+              // Only pass name and value, ignore options (Server Component safe)
               cookieStore.set(name, value);
             });
           } catch {
-            // 忽略錯誤（Server Component 無法 set cookie）
+            // Ignore errors (Server Component cannot set cookie)
           }
         },
       },

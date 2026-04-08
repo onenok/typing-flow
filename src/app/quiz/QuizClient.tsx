@@ -16,7 +16,7 @@ export default function QuizClient() {
 
   const searchParams = useSearchParams();
   const paramLevel = searchParams.get("level");
-  // 如果 URL 中有 level 參數，嘗試找到對應的關卡並設置為選中
+  // If URL has level parameter, try to find the corresponding level and set it as selected
   useEffect(() => {
     if (paramLevel) {
       const foundLevel = QuizLEVELS.find(l => l.id === paramLevel);
