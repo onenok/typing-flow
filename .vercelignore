@@ -1,0 +1,4 @@
+open-next.config.ts
+wrangler.toml
+.wrangler/
+.open-next/
