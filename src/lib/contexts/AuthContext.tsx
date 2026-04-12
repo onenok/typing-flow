@@ -152,13 +152,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .select("id")
         .eq("username", username)
         .single();
-
+      
       if (checkError && checkError.code !== "PGRST116") { // PGRST116 = no rows found
         throw new Error("檢查 username 時發生錯誤");
       }
 
       if (existingUser) {
         throw new Error("這個 username 已經被使用了，請換一個");
+      }
+
+      // Check if email is already in use
+      const { data: existingEmail, error: emailCheckError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", email)
+        .single();
+      
+      if (emailCheckError && emailCheckError.code !== "PGRST116") { // PGRST116 = no rows found
+        throw new Error("檢查 email 時發生錯誤");
+      }
+
+      if (existingEmail) {
+        throw new Error("這個 email 已經被使用了，請換一個");
       }
 
       const { error } = await supabase.auth.signUp({
