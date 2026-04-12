@@ -4,10 +4,16 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
 ![Deployed on Cloudflare](https://img.shields.io/badge/Deployed%20on-Cloudflare-F38020?style=flat-square&logo=cloudflare)
+![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-333333?style=flat-square&logo=Vercel)
 
 一個功能完整的打字練習平台，幫助用戶通過系統化的練習提升打字速度和準確率。基於 Next.js 16 構建，使用 Supabase 作為後端，部署在 Cloudflare Workers。支持中文輸入法（倉頡、速成等）和繁體中文界面。
 
-**[在線演示](#部署與訪問) • [功能特點](#功能特點) • [快速開始](#快速開始) • [開發指南](#團隊開發指南) • [故障排除](#故障排除)**
+**[在線演示](#在線演示) • [功能特點](#功能特點) • [快速開始](#快速開始) • [團隊開發指南](#團隊開發指南) • [故障排除](#故障排除)**
+
+## 在線演示
+
+[Cloudflare Workers](https://typing-flow.onenok.workers.dev/)
+[Vercel deploy](https://typing-flow-onenok.vercel.app/)
 
 ## 功能特點
 
@@ -39,7 +45,7 @@
 ### 核心依賴
 
 | 技術 | 版本 | 用途 |
-|------|------|------|
+| ------ | ------ | ------ |
 | Next.js | ^16.2.1 | 全棧 Web 框架 + App Router |
 | React | 19.2.3 | UI 組件庫 |
 | TypeScript | 5 | 類型安全的 JavaScript |
@@ -128,6 +134,7 @@ supabase db push
 #### B. 驗證數據庫
 
 在 Supabase Dashboard 的 Table Editor 中確認以下表已創建：
+
 - ✅ `profiles` - 用戶資料
 - ✅ `typing_sessions` - 練習會話
 - ✅ `typing_details` - 詳細記錄
@@ -151,7 +158,7 @@ npm start
 
 ## 項目結構
 
-```
+```tree
 typing_flow/
 ├── src/
 │   ├── app/                          # Next.js App Router (主應用)
@@ -229,23 +236,27 @@ typing_flow/
 #### 實時計算
 
 - **WPM (Words Per Minute)**：
-  ```
+
+  ```text
   WPM = (正確字符數) / (經過時間(s) / 60)
   ```
 
 - **準確率**：
-  ```
+
+  ```text
   準確率 = (正確字符數 / (正確 + 錯誤)) × 100%
   ```
 
 - **完成進度**：
-  ```
+
+  ```text
   進度 = (當前位置 / 總字符數) × 100%
   ```
 
 #### 輸入法支持
 
 使用 HTML5 Composition 事件支持實時輸入法組字：
+
 - `compositionstart` - 用戶開始組字
 - `compositionend` - 用戶完成組字
 - 無卡頓地識別最終輸入字符
@@ -253,6 +264,7 @@ typing_flow/
 #### 誤字追蹤
 
 記錄每個字符的正確性並用顏色區分：
+
 - 🟢 **綠色** - 正確輸入
 - 🔴 **紅色** - 完全錯誤
 - 輸入欄專用:\
@@ -288,7 +300,7 @@ typing_flow/
 #### 表：`profiles` (用戶資料)
 
 | 欄位 | 類型 | 說明 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `id` | UUID | 主鍵（關聯 auth.users.id） |
 | `display_name` | TEXT | 顯示名稱 |
 | `username` | VARCHAR(20) | 唯一用戶名 |
@@ -299,7 +311,7 @@ typing_flow/
 #### 表：`typing_sessions` (會話記錄)
 
 | 欄位 | 類型 | 說明 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `id` | UUID | 主鍵 |
 | `user_id` | UUID | 外鍵→profiles.id |
 | `mode` | VARCHAR | 'practice' 或 'quiz' |
@@ -314,7 +326,7 @@ typing_flow/
 #### 表：`typing_details` (詳細記錄，可選)
 
 | 欄位 | 類型 | 說明 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `id` | UUID | 主鍵 |
 | `session_id` | UUID | 外鍵→typing_sessions.id |
 | `char_index` | INTEGER | 字符位置 |
@@ -333,7 +345,7 @@ typing_flow/
 #### 練習關卡 (14+ 個)
 
 | 難度 | 級別 | 說明 | 示例 |
-|------|------|------|------|
+| ------ | ------ | ------ | ------ |
 | 🟢 Easy | 1-5 | 基礎字根和常用字 | 日月金木 |
 | 🟡 Medium | 6-10 | 字根組合和短句 | 我你他她它 |
 | 🔴 Hard | 11-14+ | 複雜字根和長句 | 完整句子 |
@@ -361,13 +373,15 @@ npm run deploy   # 部署到 Cloudflare
 ```
 
 **特色**：
+
 - 🚀 全球 CDN 加速
 - ⚡ 邊緣計算 (Edge Computing)
 - 🔄 自動擴展
 - 💰 按使用量計費
 
 **訪問地址**：
-```
+
+```url
 https://typing-flow.yourworker.workers.dev
 ```
 
@@ -422,16 +436,18 @@ npm run cf-typegen   # 生成 Cloudflare 環境類型
 ## 環境配置詳解
 
 ### `.env.local` 必需變量
+
 Project Overview → Copy → Get Connected → Framework: nextjs, Variant: App Router → .env.local
+
 | 變量 | 來源 |
-|------|------|
+| ------ | ------ |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase 項目 URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase 匿名 Key |
 
 ### 配置文件說明
 
 | 文件 | 用途 |
-|------|------|
+| ------ | ------ |
 | `next.config.ts` | Next.js 構建配置 |
 | `tsconfig.json` | TypeScript 編譯選項 |
 | `tailwind.config.ts` | Tailwind CSS 主題定制 |
@@ -453,11 +469,13 @@ npm install
 ### ❌ 問題：Supabase 連接失敗
 
 **檢查項**：
+
 - [ ] `.env.local` 文件存在並填入正確的 URL 和 Key
 - [ ] Supabase 項目狀態是否為 Active
 - [ ] 網絡連接是否正常
 
 **調試**：
+
 ```bash
 # 檢查環境變量是否加載
 node -e "console.log(process.env.NEXT_PUBLIC_SUPABASE_URL)"
@@ -466,27 +484,32 @@ node -e "console.log(process.env.NEXT_PUBLIC_SUPABASE_URL)"
 ### ❌ 問題：登入後頁面不跳轉
 
 **原因**：
+
 - AuthContext 未正確包裝應用
 - 路由守衛配置問題
 
 **解決**：
+
 - 檢查 `layout.tsx` 是否包含 `<AuthProvider>`
 - 查看瀏覽器控制台報錯信息
 
 ### ❌ 問題：輸入法組字失效
 
 **檢查**：
+
 - 使用的操作系統（Windows/Mac/Linux）
 - 輸入法是否支持（倉頡、速成等）
 
 ### ❌ 問題：練習數據未保存
 
 **檢查項**：
+
 - [ ] Supabase 認證是否成功
 - [ ] `typing_sessions` 表 RLS 政策是否正確
 - [ ] 瀏覽器控制台是否有 API 報錯
 
 **查看日誌**：
+
 ```typescript
 // 在 src\app\hooks\useTypingModule.ts 添加日誌
 console.log("Saving session:", sessionData);
@@ -498,11 +521,13 @@ console.log("Saving session:", sessionData);
 
 1. 在 `src/app/` 下新建目錄：`src/app/new-page/`
 2. 創建 `page.tsx`：
+
    ```typescript
    export default function NewPage() {
      return <div>Your content</div>;
    }
    ```
+
 3. 在 `Nav.tsx` 添加鏈接
 如果鏈接列表個長而導致樣式出錯，請自行處理。
 
@@ -515,6 +540,7 @@ console.log("Saving session:", sessionData);
 ### 修改樣式
 
 使用 Tailwind CSS (**不要修改 CSS 文件**, 但可以創建新的css)：
+
 ```typescript
 <div className="bg-blue-50 text-gray-700 rounded-lg p-4">
   Styled with Tailwind
