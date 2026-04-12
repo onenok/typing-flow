@@ -2,17 +2,20 @@
 "use client";
 
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import TypingModule from "@/app/components/typingComponents/TypingModule";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
 import { PracticeLEVELS, PLevel } from "@/lib/levels";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
+const ITEMS_PER_PAGE = 20;
+
 export default function PracticeClient() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [selectedLevel, setSelectedLevel] = useState<PLevel | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const searchParams = useSearchParams();
   const paramLevel = searchParams.get("level");
@@ -25,6 +28,13 @@ export default function PracticeClient() {
       }
     }
   }, [paramLevel]);
+
+  const totalPages = Math.ceil(PracticeLEVELS.length / ITEMS_PER_PAGE);
+
+  const paginatedLevels = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return PracticeLEVELS.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [currentPage]);
 
   const handleSelectLevel = (level: PLevel) => {
     setSelectedLevel(level);
@@ -63,11 +73,11 @@ export default function PracticeClient() {
               選擇關卡
             </h1>
             <p className="text-center text-gray-500 mb-12">
-              從基礎開始，一步步提升你的倉頡打字速度吧！
+              從基礎開始，一步步提升你的倉頡打字速度吧！ {totalPages > 1 && `(第 ${currentPage} 頁)`}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {PracticeLEVELS.map((level) => (
+              {paginatedLevels.map((level) => (
                 <div
                   key={level.id}
                   onClick={() => handleSelectLevel(level)}
@@ -103,6 +113,43 @@ export default function PracticeClient() {
                 </div>
               ))}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="mt-12 flex items-center justify-center gap-4">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  className="rounded-xl bg-white px-6 py-3 font-bold text-blue-600 shadow-sm transition-all hover:bg-blue-50 disabled:opacity-50 disabled:hover:bg-white"
+                >
+                  上一頁
+                </button>
+                
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`h-10 w-10 rounded-full font-bold transition-all ${
+                        currentPage === page
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-white text-gray-500 hover:bg-gray-100"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  className="rounded-xl bg-white px-6 py-3 font-bold text-blue-600 shadow-sm transition-all hover:bg-blue-50 disabled:opacity-50 disabled:hover:bg-white"
+                >
+                  下一頁
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <div className="max-w-4xl mx-auto">
