@@ -2,17 +2,21 @@
 "use client";
 
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import TypingModule from "@/app/components/typingComponents/TypingModule";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
+import Pagination from "@/app/components/ui/Pagination";
 import { PracticeLEVELS, PLevel } from "@/lib/levels";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+
+const ITEMS_PER_PAGE = 20;
 
 export default function PracticeClient() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [selectedLevel, setSelectedLevel] = useState<PLevel | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const searchParams = useSearchParams();
   const paramLevel = searchParams.get("level");
@@ -25,6 +29,13 @@ export default function PracticeClient() {
       }
     }
   }, [paramLevel]);
+
+  const totalPages = Math.ceil(PracticeLEVELS.length / ITEMS_PER_PAGE);
+
+  const paginatedLevels = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return PracticeLEVELS.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [currentPage]);
 
   const handleSelectLevel = (level: PLevel) => {
     setSelectedLevel(level);
@@ -62,12 +73,18 @@ export default function PracticeClient() {
             <h1 className="text-4xl font-black text-center mb-4 text-blue-600">
               選擇關卡
             </h1>
-            <p className="text-center text-gray-500 mb-12">
-              從基礎開始，一步步提升你的倉頡打字速度吧！
+            <p className="text-center text-gray-500 mb-8">
+              從基礎開始，一步步提升你的倉頡打字速度吧！ {totalPages > 1 && `(第 ${currentPage} 頁)`}
             </p>
 
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {PracticeLEVELS.map((level) => (
+              {paginatedLevels.map((level) => (
                 <div
                   key={level.id}
                   onClick={() => handleSelectLevel(level)}
@@ -103,6 +120,12 @@ export default function PracticeClient() {
                 </div>
               ))}
             </div>
+
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
           </>
         ) : (
           <div className="max-w-4xl mx-auto">
