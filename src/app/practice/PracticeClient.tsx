@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import TypingModule from "@/app/components/typingComponents/TypingModule";
 import LoadingScreen from "@/app/components/loadingScreen/loadingScreen";
+import Pagination from "@/app/components/ui/Pagination";
 import { PracticeLEVELS, PLevel } from "@/lib/levels";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -72,9 +73,15 @@ export default function PracticeClient() {
             <h1 className="text-4xl font-black text-center mb-4 text-blue-600">
               選擇關卡
             </h1>
-            <p className="text-center text-gray-500 mb-12">
+            <p className="text-center text-gray-500 mb-8">
               從基礎開始，一步步提升你的倉頡打字速度吧！ {totalPages > 1 && `(第 ${currentPage} 頁)`}
             </p>
+
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {paginatedLevels.map((level) => (
@@ -114,42 +121,11 @@ export default function PracticeClient() {
               ))}
             </div>
 
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="mt-12 flex items-center justify-center gap-4">
-                <button
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  className="rounded-xl bg-white px-6 py-3 font-bold text-blue-600 shadow-sm transition-all hover:bg-blue-50 disabled:opacity-50 disabled:hover:bg-white"
-                >
-                  上一頁
-                </button>
-                
-                <div className="flex items-center gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`h-10 w-10 rounded-full font-bold transition-all ${
-                        currentPage === page
-                          ? "bg-blue-600 text-white shadow-md"
-                          : "bg-white text-gray-500 hover:bg-gray-100"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                  className="rounded-xl bg-white px-6 py-3 font-bold text-blue-600 shadow-sm transition-all hover:bg-blue-50 disabled:opacity-50 disabled:hover:bg-white"
-                >
-                  下一頁
-                </button>
-              </div>
-            )}
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
           </>
         ) : (
           <div className="max-w-4xl mx-auto">
